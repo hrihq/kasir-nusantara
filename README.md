@@ -4,29 +4,26 @@ Aplikasi kasir (POS) Android berbasis Vite + React + Tailwind + Capacitor.
 
 ---
 
-## Cara Rilis Update (pengguna dapat notifikasi + changelog)
+## Cara Rilis Update (otomatis lewat GitHub Actions)
 
 Aplikasi mengecek **GitHub Releases** setiap kali dibuka. Jika ada versi lebih baru dari `version` di `package.json`, muncul jendela "Pembaruan Tersedia" berisi catatan rilis (changelog) + tombol unduh APK.
 
-### Persiapan sekali saja
+Workflow `.github/workflows/release.yml` berjalan setiap push ke `main`: jika versi `package.json` belum punya Release, ia otomatis **membangun APK, membuat Release, dan melampirkan APK** dengan changelog dari daftar commit sejak tag sebelumnya (`--generate-notes`).
 
-1. Buat repo GitHub lalu push proyek ini.
-2. Buka `src/lib/update.js`, ganti `GITHUB_REPO = 'USERNAME/NAMA-REPO'` dengan `namagithub/namarepo`.
+### Alur update (cukup ini saja)
 
-### Alur setiap update
+```
+# 1. ubah kode seperti biasa, commit
+git add -A && git commit -m "fitur baru"
 
-1. Naikkan versi & build APK:
-   ```
-   npm version minor        # atau patch / major
-   npm run build
-   npx cap sync android
-   cd android && gradlew.bat assembleDebug && cd ..
-   ```
-2. Buat Release dengan changelog + lampirkan APK:
-   ```
-   gh release create v1.1.0 KasirNusantara.apk --title "Versi 1.1.0" --notes "- Fitur baru X\n- Perbaikan Y"
-   ```
-3. Selesai — pengguna akan melihat jendela pembaruan beserta changelog saat membuka aplikasi, dan mengunduh APK dari tombol yang tersedia.
+# 2. naikkan versi (patch = 1.0.1, minor = 1.1.0, major = 2.0.0)
+npm version minor
+
+# 3. dorong ke GitHub — sisanya otomatis
+git push --follow-tags
+```
+
+Beberapa menit kemudian Release baru muncul di GitHub berisi APK, dan pengguna mendapat notifikasi pembaruan beserta changelog saat membuka aplikasi. Changelog bisa kamu rapikan manual kapan saja di halaman Releases (tombol edit).
 
 Catatan: notifikasi muncul saat aplikasi dibuka (bukan dorongan server). Tanpa internet, pemeriksaan diabaikan secara diam-diam.
 

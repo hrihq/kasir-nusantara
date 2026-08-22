@@ -1,0 +1,66 @@
+name: Rilis
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rilis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cek apakah versi ini sudah pernah dirilis
+        id: versi
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSI=$(node -p "require('./package.json').version")
+          if gh release view "v$VERSI" >/dev/null 2>&1; then
+            echo "baru=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "baru=true" >> "$GITHUB_OUTPUT"
+            echo "versi=$VERSI" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.versi.outputs.baru == 'true'
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        if: steps.versi.outputs.baru == 'true'
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Build web + sinkron Capacitor
+        if: steps.versi.outputs.baru == 'true'
+        run: |
+          npm ci
+          npm run build
+          npx cap sync android
+
+      - name: Build APK
+        if: steps.versi.outputs.baru == 'true'
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --console=plain
+
+      - name: Siapkan berkas APK
+        if: steps.versi.outputs.baru == 'true'
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk "KasirNusantara-v${{ steps.versi.outputs.versi }}.apk"
+
+      - name: Buat Release + changelog
+        if: steps.versi.outputs.baru == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "v${{ steps.versi.outputs.versi }}" "KasirNusantara-v${{ steps.versi.outputs.versi }}.apk" --title "Versi ${{ steps.versi.outputs.versi }}" --generate-notes

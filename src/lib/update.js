@@ -2,7 +2,7 @@ import pkg from '../../package.json'
 
 export const VERSI = pkg.version
 
-const GITHUB_REPO = 'USERNAME/NAMA-REPO'
+const GITHUB_REPO = 'hrihq/kasir-nusantara'
 
 const bandingkanVersi = (a, b) => {
   const pa = String(a).split('.').map(Number)
