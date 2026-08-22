@@ -24,7 +24,7 @@ export default function TabBar({ tab, setTab }) {
       if (!wadah || !btn) return
       const a = wadah.getBoundingClientRect()
       const b = btn.getBoundingClientRect()
-      setKotak({ left: b.left - a.left, top: b.top - a.top, width: b.width, height: b.height })
+      setKotak({ x: b.left - a.left, y: b.top - a.top, width: b.width, height: b.height })
     }
     ukur()
     window.addEventListener('resize', ukur)
@@ -101,8 +101,12 @@ export default function TabBar({ tab, setTab }) {
         {kotak && (
           <span
             aria-hidden="true"
-            className="absolute rounded-full bg-merek shadow-md transition-all duration-300 ease-out"
-            style={kotak}
+            className="absolute left-0 top-0 rounded-full bg-merek shadow-md transition-[transform,width,height] duration-300 ease-out will-change-transform"
+            style={{
+              width: kotak.width,
+              height: kotak.height,
+              transform: `translate3d(${kotak.x}px, ${kotak.y}px, 0)`,
+            }}
           />
         )}
         {TABS.map((t) => {

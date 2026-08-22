@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Albert Sans';
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url('/fonts/albert-sans-var.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Bodoni Moda';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/bodoni-moda-var.woff2') format('woff2');
+}
+
 :root {
   --latar: #f1e7d6;
   --permukaan: #ffffff;
@@ -20,6 +35,7 @@
   html {
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
+    touch-action: manipulation;
   }
   body {
     @apply font-badan antialiased;
@@ -81,17 +97,31 @@
 }
 
 /* ====== ANIMASI ====== */
-@keyframes masuk-halaman {
+@keyframes dari-kanan {
   from {
     opacity: 0;
+    transform: translateX(18px);
   }
   to {
     opacity: 1;
+    transform: none;
   }
 }
-.anim-dari-kanan,
+@keyframes dari-kiri {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.anim-dari-kanan {
+  animation: dari-kanan 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 .anim-dari-kiri {
-  animation: masuk-halaman 0.2s ease-out both;
+  animation: dari-kiri 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes pudar {
   from {

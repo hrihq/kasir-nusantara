@@ -95,7 +95,7 @@ export default function PembaruanModal({ info, tutup }) {
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-black/10">
                 <div
-                  className={`h-full rounded-full bg-merek transition-all duration-200 ${
+                  className={`h-full rounded-full bg-merek transition-[width] duration-200 ${
                     progres === 0 ? 'anim-pemuat w-1/3' : ''
                   }`}
                   style={progres > 0 ? { width: `${persen}%` } : undefined}

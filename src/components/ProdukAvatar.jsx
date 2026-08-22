@@ -14,7 +14,7 @@ function indeksWarna(teks) {
 
 export default function ProdukAvatar({ produk, className = '' }) {
   if (produk.gambar) {
-    return <img src={produk.gambar} alt={produk.nama} className={`${className} object-cover`} loading="lazy" />
+    return <img src={produk.gambar} alt={produk.nama} className={`${className} object-cover`} loading="lazy" decoding="async" />
   }
   const inisial = (produk.nama || '?')
     .split(/\s+/)

@@ -164,8 +164,8 @@ export default function AturPage() {
           }`}
         >
           <span
-            className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all duration-200 ${
-              gelap ? 'left-6' : 'left-1'
+            className={`absolute top-1 left-1 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ease-out ${
+              gelap ? 'translate-x-5' : 'translate-x-0'
             }`}
           />
         </button>
@@ -194,9 +194,9 @@ export default function AturPage() {
             }`}
           >
             <span
-              className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all duration-200 ${
-                pengaturan.pengingatAktif ? 'left-6' : 'left-1'
-              }`}
+              className={`absolute top-1 left-1 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ease-out ${
+                pengaturan.pengingatAktif ? 'translate-x-5' : 'translate-x-0'
+          }`}
             />
           </button>
         </div>
@@ -225,9 +225,9 @@ export default function AturPage() {
             }`}
           >
             <span
-              className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all duration-200 ${
-                pengaturan.pinAktif ? 'left-6' : 'left-1'
-              }`}
+              className={`absolute top-1 left-1 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ease-out ${
+                pengaturan.pinAktif ? 'translate-x-5' : 'translate-x-0'
+          }`}
             />
           </button>
         </div>
@@ -402,9 +402,9 @@ export default function AturPage() {
             }`}
           >
             <span
-              className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all ${
-                pengaturan.ppnAktif ? 'left-6' : 'left-1'
-              }`}
+              className={`absolute top-1 left-1 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ease-out ${
+                pengaturan.ppnAktif ? 'translate-x-5' : 'translate-x-0'
+          }`}
             />
           </button>
         </div>
@@ -481,3 +481,5 @@ export default function AturPage() {
     </div>
   )
 }
+
+
