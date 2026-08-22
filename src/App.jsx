@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import { jadwalkanPengingat } from './lib/notif.js'
-import { cekPembaruan, sudahDitunda, besok, bersihkanSisa, kirimNotif, VERSI } from './lib/update.js'
+import { cekPembaruan, sudahDitunda, besok, bersihkanSisa, kirimNotif, simpanCatatan, VERSI } from './lib/update.js'
 import { pakaiBahasa } from './lib/bahasa.js'
 import PembaruanModal from './components/PembaruanModal.jsx'
 import CatatanRilisModal from './components/CatatanRilisModal.jsx'
@@ -72,9 +72,12 @@ function Halaman() {
     }
     const t = setTimeout(() => {
       cekPembaruan().then((info) => {
-        if (!info || sudahDitunda(pengaturanRef.current)) return
-        kirimNotif(info)
-        setInfoUpdate(info)
+        if (!info) return
+        simpanCatatan(info.versi, info.catatan)
+        if (!sudahDitunda(pengaturanRef.current)) {
+          kirimNotif(info)
+          setInfoUpdate(info)
+        }
       })
     }, 2500)
     return () => clearTimeout(t)

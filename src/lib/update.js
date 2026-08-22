@@ -65,10 +65,12 @@ const blobKeBase64 = (blob) =>
 // Cermin untuk mengatasi ISP yang memblokir/membatasi CDN GitHub
 const CERMIN = ['https://gh-proxy.com/', 'https://ghp.ci/']
 
-async function unduhSatu(url, onProgres) {
+const BATAS_MANDEK = 20000 // ms tanpa data baru → anggap jalur macet
+
+async function unduhSatu(url, onProgres, info) {
   if (Capacitor.isNativePlatform()) {
     const langganan = await PembukaApk.addListener('progres', (d) => {
-      onProgres?.(d.total ? d.terunduh / d.total : 0, d.terunduh)
+      onProgres?.(d.total ? d.terunduh / d.total : 0, d.terunduh, info)
     })
     try {
       await PembukaApk.unduh({ url, file: NAMA_FILE_APK })
@@ -77,35 +79,66 @@ async function unduhSatu(url, onProgres) {
     }
     return
   }
-  const res = await fetch(url)
-  if (!res.ok) throw new Error('Unduhan gagal')
-  const total = Number(res.headers.get('content-length')) || 0
-  const reader = res.body.getReader()
-  const bagian = []
-  let terunduh = 0
-  for (;;) {
-    const { done, value } = await reader.read()
-    if (done) break
-    bagian.push(value)
-    terunduh += value.length
-    onProgres?.(total ? terunduh / total : 0, terunduh)
+  const kendali = new AbortController()
+  const pengawas = setInterval(() => {}, 1000)
+  let terakhir = Date.now()
+  const segar = () => {
+    terakhir = Date.now()
   }
-  await Filesystem.writeFile({
-    path: NAMA_FILE_APK,
-    data: await blobKeBase64(new Blob(bagian, { type: 'application/vnd.android.package-archive' })),
-    directory: Directory.Cache,
-  })
+  kendali.signal.addEventListener('abort', segar)
+  const penjagaMandek = setInterval(() => {
+    if (Date.now() - terakhir > BATAS_MANDEK) kendali.abort()
+  }, 1000)
+  try {
+    const res = await fetch(url, { signal: kendali.signal })
+    if (!res.ok) throw new Error('Unduhan gagal')
+    const total = Number(res.headers.get('content-length')) || 0
+    const reader = res.body.getReader()
+    const bagian = []
+    let terunduh = 0
+    for (;;) {
+      const tunggu = Promise.race([
+        reader.read(),
+        new Promise((_, tolak) =>
+          setTimeout(() => {
+            kendali.abort()
+            tolak(new Error('Jeda terlalu lama'))
+          }, BATAS_MANDEK),
+        ),
+      ])
+      const { done, value } = await tunggu
+      segar()
+      if (done) break
+      bagian.push(value)
+      terunduh += value.length
+      onProgres?.(total ? terunduh / total : 0, terunduh, info)
+    }
+    clearInterval(penjagaMandek)
+    clearInterval(pengawas)
+    await Filesystem.writeFile({
+      path: NAMA_FILE_APK,
+      data: await blobKeBase64(new Blob(bagian, { type: 'application/vnd.android.package-archive' })),
+      directory: Directory.Cache,
+    })
+    return
+  } catch (e) {
+    clearInterval(penjagaMandek)
+    clearInterval(pengawas)
+    throw e
+  }
 }
 
 export async function unduhApk(url, onProgres) {
   const daftarUrl = [url, ...CERMIN.map((m) => m + url)]
   let galatTerakhir
-  for (const u of daftarUrl) {
+  for (let i = 0; i < daftarUrl.length; i++) {
+    const info = { jalur: i + 1, totalJalur: daftarUrl.length }
     try {
-      await unduhSatu(u, onProgres)
+      await unduhSatu(daftarUrl[i], onProgres, info)
       return
     } catch (e) {
       galatTerakhir = e
+      onProgres?.(0, 0, { ...info, gantiJalur: true })
     }
   }
   throw galatTerakhir
@@ -165,6 +198,27 @@ export async function ambilCatatanVersi(versi) {
     return data.body || ''
   } catch {
     return ''
+  }
+}
+
+// Simpan catatan rilis saat cek pembaruan, agar popup changelog
+// tetap berisi walau jaringan/API GitHub sedang bermasalah.
+const KUNCI_CATATAN = 'kasir_catatan_rilis'
+
+export function simpanCatatan(versi, teks) {
+  try {
+    if (teks) localStorage.setItem(KUNCI_CATATAN, JSON.stringify({ versi, teks }))
+  } catch {
+    /* penyimpanan penuh — abaikan */
+  }
+}
+
+export function bacaCatatanTersimpan(versi) {
+  try {
+    const d = JSON.parse(localStorage.getItem(KUNCI_CATATAN))
+    return d?.versi === String(versi) ? d.teks || '' : null
+  } catch {
+    return null
   }
 }
 

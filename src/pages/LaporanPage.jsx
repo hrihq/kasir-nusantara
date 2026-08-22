@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Chart from 'chart.js/auto'
 import { useStore } from '../context/StoreContext.jsx'
 import { rupiah, kunciHari, tanggalPendek, tanggalLengkap } from '../lib/format.js'
-import { pakaiTema } from '../lib/tema.js'
+import { pakaiTema, warnaMerek } from '../lib/tema.js'
 import { t, lokale } from '../lib/bahasa.js'
 import { eksporExcel, namaBerkasLaporan } from '../lib/ekspor.js'
 import PageHeader from '../components/PageHeader.jsx'
@@ -53,8 +53,20 @@ const opsiUmum = (gelap) => {
   }
 }
 
+// Paksa gambar ulang grafik saat tema warna diganti
+function pakaiVersiWarna() {
+  const [v, setV] = useState(0)
+  useEffect(() => {
+    const fn = () => setV((n) => n + 1)
+    window.addEventListener('kasir:tema-warna', fn)
+    return () => window.removeEventListener('kasir:tema-warna', fn)
+  }, [])
+  return v
+}
+
 function GrafikGaris({ labels, data, gelap }) {
   const ref = useRef(null)
+  const versiWarna = pakaiVersiWarna()
   useEffect(() => {
     if (!ref.current) return
     const ch = new Chart(ref.current, {
@@ -65,12 +77,12 @@ function GrafikGaris({ labels, data, gelap }) {
           {
             label: t('Pemasukan'),
             data,
-            borderColor: '#b23b22',
-            backgroundColor: 'rgba(178,59,34,.10)',
+            borderColor: warnaMerek(),
+            backgroundColor: warnaMerek(0.1),
             fill: true,
             tension: 0.38,
             pointRadius: 3,
-            pointBackgroundColor: '#b23b22',
+            pointBackgroundColor: warnaMerek(),
             borderWidth: 2.5,
           },
         ],
@@ -78,7 +90,7 @@ function GrafikGaris({ labels, data, gelap }) {
       options: opsiUmum(gelap),
     })
     return () => ch.destroy()
-  }, [labels, data, gelap])
+  }, [labels, data, gelap, versiWarna])
   return (
     <div className="relative h-52">
       <canvas ref={ref} />
@@ -88,6 +100,7 @@ function GrafikGaris({ labels, data, gelap }) {
 
 function GrafikBatang({ labels, omzet, beban, gelap }) {
   const ref = useRef(null)
+  const versiWarna = pakaiVersiWarna()
   useEffect(() => {
     if (!ref.current) return
     const dasar = opsiUmum(gelap)
@@ -99,7 +112,7 @@ function GrafikBatang({ labels, omzet, beban, gelap }) {
           {
             label: t('Pemasukan'),
             data: omzet,
-            backgroundColor: '#b23b22',
+            backgroundColor: warnaMerek(),
             borderRadius: 6,
             maxBarThickness: 16,
           },
@@ -131,7 +144,7 @@ function GrafikBatang({ labels, omzet, beban, gelap }) {
       },
     })
     return () => ch.destroy()
-  }, [labels, omzet, beban, gelap])
+  }, [labels, omzet, beban, gelap, versiWarna])
   return (
     <div className="relative h-52">
       <canvas ref={ref} />

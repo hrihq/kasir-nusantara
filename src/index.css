@@ -22,7 +22,60 @@
   --permukaan: #ffffff;
   --teks: #241507;
   --garis: rgba(36, 21, 7, 0.1);
+  --merek-rgb: 178 59 34;
+  --merek-gelap-rgb: 143 46 24;
+  --merek-lembut-rgb: 251 233 227;
+  --krem-rgb: 247 241 230;
+  --krem-tua-rgb: 239 229 210;
+  --tinta-rgb: 36 21 7;
+  --glow-1: rgba(178, 59, 34, 0.07);
+  --glow-2: rgba(122, 92, 73, 0.09);
 }
+
+/* ===== TEMA WARNA ===== */
+/* Batik — cokelat sogan & emas khas batik Jawa */
+[data-tema='batik'] {
+  --latar: #f4ead3;
+  --merek-rgb: 138 90 43;
+  --merek-gelap-rgb: 107 68 30;
+  --merek-lembut-rgb: 243 231 210;
+  --krem-rgb: 248 240 226;
+  --krem-tua-rgb: 235 221 195;
+  --tinta-rgb: 43 29 12;
+  --glow-1: rgba(138, 90, 43, 0.09);
+  --glow-2: rgba(196, 154, 74, 0.12);
+}
+[data-tema='batik'] .panggung {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3Cg fill='%238a5a2b' fill-opacity='0.055'%3E%3Cellipse cx='26' cy='13' rx='8' ry='12'/%3E%3Cellipse cx='26' cy='39' rx='8' ry='12'/%3E%3Cellipse cx='13' cy='26' rx='12' ry='8'/%3E%3Cellipse cx='39' cy='26' rx='12' ry='8'/%3E%3Ccircle cx='26' cy='26' r='2.6'/%3E%3C/g%3E%3C/svg%3E");
+}
+.dark[data-tema='batik'] .panggung {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3Cg fill='%23c49a4a' fill-opacity='0.07'%3E%3Cellipse cx='26' cy='13' rx='8' ry='12'/%3E%3Cellipse cx='26' cy='39' rx='8' ry='12'/%3E%3Cellipse cx='13' cy='26' rx='12' ry='8'/%3E%3Cellipse cx='39' cy='26' rx='12' ry='8'/%3E%3Ccircle cx='26' cy='26' r='2.6'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* Laut — biru laut dalam */
+[data-tema='laut'] {
+  --latar: #eaf1f2;
+  --merek-rgb: 15 118 144;
+  --merek-gelap-rgb: 11 90 111;
+  --merek-lembut-rgb: 222 237 241;
+  --krem-rgb: 240 245 246;
+  --krem-tua-rgb: 224 233 236;
+  --tinta-rgb: 10 31 38;
+  --glow-1: rgba(15, 118, 144, 0.08);
+  --glow-2: rgba(70, 130, 150, 0.09);
+}
+/* Rimba — hijau hutan tropis */
+[data-tema='rimba'] {
+  --latar: #edf2e6;
+  --merek-rgb: 61 110 46;
+  --merek-gelap-rgb: 46 85 34;
+  --merek-lembut-rgb: 228 238 219;
+  --krem-rgb: 242 246 237;
+  --krem-tua-rgb: 227 234 216;
+  --tinta-rgb: 20 30 14;
+  --glow-1: rgba(61, 110, 46, 0.08);
+  --glow-2: rgba(96, 128, 60, 0.1);
+}
+
 .dark {
   --latar: #141009;
   --permukaan: #262019;
@@ -37,14 +90,26 @@
     overscroll-behavior: none;
     touch-action: manipulation;
     scroll-behavior: smooth;
+    /* Skala UI ikut penyesuaian DPI/ukuran layar agar selalu muat */
+    font-size: clamp(13.5px, 0.35vw + 13px, 15.5px);
+  }
+  @media (orientation: landscape) and (max-height: 520px) {
+    html {
+      font-size: 13px;
+    }
+  }
+  @media (max-width: 340px) {
+    html {
+      font-size: 12.5px;
+    }
   }
   body {
     @apply font-badan antialiased;
     color: var(--teks);
     background-color: var(--latar);
     background-image:
-      radial-gradient(circle at 12% 18%, rgba(178, 59, 34, 0.07), transparent 42%),
-      radial-gradient(circle at 88% 82%, rgba(122, 92, 73, 0.09), transparent 46%);
+      radial-gradient(circle at 12% 18%, var(--glow-1), transparent 42%),
+      radial-gradient(circle at 88% 82%, var(--glow-2), transparent 46%);
     background-attachment: fixed;
     user-select: none;
     -webkit-user-select: none;
@@ -275,6 +340,40 @@
   animation: garis-centang 0.45s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* ====== SPINNER TRANSISI TEMA ====== */
+@keyframes berputar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes denyut-titik {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.55);
+    opacity: 0.5;
+  }
+}
+.cincin-tema {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 240deg,
+    rgb(var(--merek-rgb) / 0.25) 290deg,
+    rgb(var(--merek-rgb)) 350deg,
+    transparent 360deg
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  animation: berputar 0.9s linear infinite;
+}
+.cincin-tema::after {
+  content: '';
+}
+
 @media (prefers-reduced-motion: reduce) {
   .anim-dari-kanan,
   .anim-dari-kiri,
@@ -291,7 +390,7 @@
 .dark .bg-white:not(.kertas-struk) { background-color: #262019; }
 .dark .bg-krem { background-color: #171210; }
 .dark .bg-krem-tua { background-color: #2b231c; }
-.dark .bg-merek-lembut { background-color: rgba(178, 59, 34, 0.18); }
+.dark .bg-merek-lembut { background-color: rgb(var(--merek-rgb) / 0.2); }
 .dark .text-tinta { color: #f2ece3; }
 .dark .text-black\/35 { color: rgba(244, 238, 230, 0.38); }
 .dark .text-black\/30 { color: rgba(244, 238, 230, 0.32); }

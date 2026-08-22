@@ -280,11 +280,16 @@ export default function KasirPage() {
               <div className="text-xs text-white/70">{t('Kasir siap melayani')}</div>
             </div>
             <button
-              onClick={gantiTema}
+              onClick={() => {
+                navigator.vibrate?.(8)
+                gantiTema()
+              }}
               aria-label={gelap ? t('Mode terang') : t('Mode gelap')}
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/15 text-krem transition duration-200 active:scale-90"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/15 text-krem transition duration-150 active:scale-90 active:bg-white/30"
             >
-              <Ikon nama={gelap ? 'matahari' : 'bulan'} className="h-5 w-5" />
+              <span key={gelap ? 'g' : 't'} className="anim-muncul block">
+                <Ikon nama={gelap ? 'matahari' : 'bulan'} className="h-5 w-5" />
+              </span>
             </button>
           </div>
           <div className="relative mt-4">
@@ -316,7 +321,7 @@ export default function KasirPage() {
       </div>
 
       {/* Grid menu */}
-      <div className="grid grid-cols-2 gap-3 px-5 pt-3 layar:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 px-5 pt-3 layar:grid-cols-6 layar:gap-2 layar:px-4 layar:pt-2">
         {hasil.map((p) => (
           <button
             key={p.id}
@@ -324,12 +329,12 @@ export default function KasirPage() {
             className="group overflow-hidden rounded-2xl bg-white text-left shadow-kartu transition duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-[.97]"
           >
             <ProdukAvatar produk={p} className="block aspect-square w-full text-3xl" />
-            <div className="border-t border-black/5 p-3">
-              <div className="line-clamp-2 min-h-[2.5em] text-sm font-semibold leading-snug">{p.nama}</div>
+            <div className="border-t border-black/5 p-3 layar:p-2">
+              <div className="line-clamp-2 min-h-[2.5em] text-sm font-semibold leading-snug layar:min-h-0 layar:text-[11px] layar:leading-tight">{p.nama}</div>
               <div className="mt-1.5 flex items-center justify-between">
-                <span className="text-sm font-bold text-merek">{rupiah(p.harga)}</span>
-                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-merek-lembut text-merek transition duration-200 group-hover:bg-merek group-hover:text-white">
-                  <Ikon nama="plus" className="h-3.5 w-3.5" />
+                <span className="text-sm font-bold text-merek layar:text-xs">{rupiah(p.harga)}</span>
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-merek-lembut text-merek transition duration-200 group-hover:bg-merek group-hover:text-white layar:h-5 layar:w-5">
+                  <Ikon nama="plus" className="h-3.5 w-3.5 layar:h-3 layar:w-3" />
                 </span>
               </div>
             </div>

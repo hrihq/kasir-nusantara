@@ -11,6 +11,10 @@
         var m = localStorage.getItem('kasir_tema') || 'sistem'
         var g = m === 'gelap' || (m === 'sistem' && window.matchMedia('(prefers-color-scheme: dark)').matches)
         document.documentElement.classList.toggle('dark', g)
+        var tw = localStorage.getItem('kasir_tema_warna')
+        if (tw && ['klasik', 'batik', 'laut', 'rimba'].indexOf(tw) !== -1) {
+          document.documentElement.dataset.tema = tw
+        }
       } catch (e) {}
     </script>
     <link rel="manifest" href="/manifest.webmanifest" />

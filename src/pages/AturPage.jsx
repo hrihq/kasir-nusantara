@@ -1,13 +1,14 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useStore } from '../context/StoreContext.jsx'
 import { cekPembaruan, VERSI } from '../lib/update.js'
 import { eksporCadangan, imporCadangan } from '../lib/cadangan.js'
 import { rupiah } from '../lib/format.js'
 import { bacaGambarKecil } from '../lib/gambar.js'
-import { pakaiTema, LABEL_TEMA } from '../lib/tema.js'
+import { pakaiTema, LABEL_TEMA, TEMA_WARNA, bacaTemaWarna, aturTemaWarna } from '../lib/tema.js'
 import { t, pakaiBahasa } from '../lib/bahasa.js'
 import { izinNotifikasi, jadwalkanPengingat } from '../lib/notif.js'
 import PageHeader from '../components/PageHeader.jsx'
+import TransisiTema from '../components/TransisiTema.jsx'
 import PesanPudar from '../components/PesanPudar.jsx'
 import PembaruanModal from '../components/PembaruanModal.jsx'
 import { Modal } from '../components/Modal.jsx'
@@ -16,6 +17,23 @@ export default function AturPage() {
   const { pengaturan, setPengaturan, transaksi, setTransaksi, pengeluaran, setPengeluaran } =
     useStore()
   const [gelap, gantiTema, mode] = pakaiTema()
+  const [warnaAktif, setWarnaAktif] = useState(bacaTemaWarna())
+  const [transisi, setTransisi] = useState(false)
+
+  const transisiRef = useRef(null)
+  // Terapkan tema LANGSUNG agar tombol terasa responsif — overlay hanya kilat konfirmasi
+  const jalankanTransisi = (terapkan) => {
+    terapkan()
+    setTransisi(true)
+    clearTimeout(transisiRef.current)
+    transisiRef.current = setTimeout(() => setTransisi(false), 650)
+  }
+  const gantiTemaTransisi = () => jalankanTransisi(gantiTema)
+  const gantiWarna = (id) => {
+    if (id === warnaAktif) return
+    setWarnaAktif(id)
+    jalankanTransisi(() => aturTemaWarna(id))
+  }
   const [bahasaAktif, gantiBahasa] = pakaiBahasa()
   const [pinLama, setPinLama] = useState('')
   const [pinBaru, setPinBaru] = useState('')
@@ -187,6 +205,7 @@ export default function AturPage() {
 
   return (
     <div className="pb-32">
+      <TransisiTema tampil={transisi} />
       <PageHeader judul={t('Pengaturan')} sub={t('Toko, struk, dan pajak')} />
 
       {/* Tampilan */}
@@ -198,11 +217,45 @@ export default function AturPage() {
           </div>
         </div>
         <button
-          onClick={gantiTema}
+          onClick={gantiTemaTransisi}
           className="tombol--hantu shrink-0 !px-4 !py-2 text-xs"
         >
           {t(LABEL_TEMA[mode])}
         </button>
+      </div>
+
+      {/* Tema warna */}
+      <div className="kartu mx-5 mt-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-bold">{t('Tema Warna')}</div>
+            <div className="text-xs text-black/45">{t('Ganti nuansa warna aplikasi')}</div>
+          </div>
+        </div>
+        <div className="mt-3 grid grid-cols-4 gap-2">
+          {TEMA_WARNA.map((w) => {
+            const aktif = w.id === warnaAktif
+            return (
+              <button
+                key={w.id}
+                onClick={() => gantiWarna(w.id)}
+                aria-label={t(w.label)}
+                className={`flex flex-col items-center gap-1.5 rounded-xl py-2.5 transition duration-200 active:scale-95 ${
+                  aktif ? 'ring-2 ring-merek' : 'ring-1 ring-black/10'
+                }`}
+                style={aktif ? { background: 'rgb(var(--merek-lembut-rgb))' } : undefined}
+              >
+                <span
+                  className={`h-6 w-6 rounded-full shadow-inner ${aktif ? 'ring-2 ring-white/80' : ''}`}
+                  style={{ background: w.swatch }}
+                />
+                <span className="text-[11px] font-semibold" style={{ opacity: 0.75 }}>
+                  {t(w.label)}
+                </span>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Bahasa */}

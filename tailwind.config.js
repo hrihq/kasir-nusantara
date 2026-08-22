@@ -10,15 +10,15 @@ export default {
       },
       colors: {
         merek: {
-          DEFAULT: '#b23b22',
-          gelap: '#8f2e18',
-          lembut: '#fbe9e3',
+          DEFAULT: 'rgb(var(--merek-rgb) / <alpha-value>)',
+          gelap: 'rgb(var(--merek-gelap-rgb) / <alpha-value>)',
+          lembut: 'rgb(var(--merek-lembut-rgb) / <alpha-value>)',
         },
         krem: {
-          DEFAULT: '#f7f1e6',
-          tua: '#efe5d2',
+          DEFAULT: 'rgb(var(--krem-rgb) / <alpha-value>)',
+          tua: 'rgb(var(--krem-tua-rgb) / <alpha-value>)',
         },
-        tinta: '#241507',
+        tinta: 'rgb(var(--tinta-rgb) / <alpha-value>)',
       },
       fontFamily: {
         judul: ['"Bodoni Moda"', 'serif'],

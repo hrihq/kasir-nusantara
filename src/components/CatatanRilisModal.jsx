@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Modal } from './Modal.jsx'
-import { VERSI, ambilCatatanVersi, barisCatatan } from '../lib/update.js'
+import { VERSI, ambilCatatanVersi, barisCatatan, bacaCatatanTersimpan } from '../lib/update.js'
 import { t } from '../lib/bahasa.js'
 
 export default function CatatanRilisModal({ buka, tutup }) {
@@ -9,9 +9,11 @@ export default function CatatanRilisModal({ buka, tutup }) {
   useEffect(() => {
     if (!buka) return
     let hidup = true
-    setPoin(null)
+    // Pakai catatan yang tersimpan saat cek pembaruan (instan & tahan gangguan jaringan)
+    const tersimpan = bacaCatatanTersimpan(VERSI)
+    setPoin(tersimpan !== null ? barisCatatan(tersimpan) : null)
     ambilCatatanVersi(VERSI).then((teks) => {
-      if (hidup) setPoin(barisCatatan(teks))
+      if (hidup && teks) setPoin(barisCatatan(teks))
     })
     return () => {
       hidup = false
@@ -35,22 +37,26 @@ export default function CatatanRilisModal({ buka, tutup }) {
           </div>
         </div>
 
-        {poin === null ? (
-          <div className="rounded-2xl bg-white p-4 text-sm text-black/45 shadow-kartu">…</div>
-        ) : poin.length > 0 ? (
+        {(poin === null || poin.length > 0) && (
           <div className="max-h-52 space-y-2 overflow-y-auto rounded-2xl bg-white p-4 shadow-kartu">
             <p className="text-xs font-bold uppercase tracking-wide text-black/40">
               {t('Yang baru dalam versi ini:')}
             </p>
-            {poin.map((b, i) => (
-              <div key={i} className="flex items-start gap-2 text-sm text-black/60">
-                <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-merek" />
-                <span>{b}</span>
+            {poin === null ? (
+              <div className="space-y-2 py-1">
+                <div className="h-3 w-4/5 animate-pulse rounded-full bg-black/10" />
+                <div className="h-3 w-full animate-pulse rounded-full bg-black/10" />
+                <div className="h-3 w-3/5 animate-pulse rounded-full bg-black/10" />
               </div>
-            ))}
+            ) : (
+              poin.map((b, i) => (
+                <div key={i} className="flex items-start gap-2 text-sm text-black/60">
+                  <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-merek" />
+                  <span>{b}</span>
+                </div>
+              ))
+            )}
           </div>
-        ) : (
-          <p className="text-sm text-black/50">{t('Aplikasi sudah versi terbaru')}.</p>
         )}
 
         <button onClick={tutup} className="tombol--utama w-full">

@@ -235,6 +235,20 @@ const EN = {
   'Rekap transaksi dan pengeluaran hari ini di Kasir Nusantara.':
     "Recap today's transactions and expenses in Kasir Nusantara.",
 
+  // Tema warna
+  Klasik: 'Classic',
+  Batik: 'Batik',
+  Laut: 'Ocean',
+  Rimba: 'Forest',
+  'Tema Warna': 'Color Theme',
+  'Ganti nuansa warna aplikasi': 'Change the app color accent',
+  'Tunggu sebentar…': 'One moment…',
+
+  // Unduhan pembaruan
+  'Jalur %s dari %s': 'Route %s of %s',
+  'Beralih ke jalur lain…': 'Switching to another route…',
+  'Jaringan lambat…': 'Slow network…',
+
   // Struk
   'Struk Transaksi': 'Receipt',
   'Telp.': 'Phone',

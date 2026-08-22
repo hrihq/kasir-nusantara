@@ -94,8 +94,8 @@ public class InstallerPlugin extends Plugin {
                     conn = (HttpURLConnection) url.openConnection();
                     conn.setInstanceFollowRedirects(true);
                     conn.setRequestProperty("User-Agent", "KasirNusantara");
-                    conn.setConnectTimeout(15000);
-                    conn.setReadTimeout(30000);
+                    conn.setConnectTimeout(10000);
+                    conn.setReadTimeout(20000);
                     long total = conn.getContentLengthLong();
                     InputStream in = new BufferedInputStream(conn.getInputStream(), 65536);
                     File out = new File(getContext().getCacheDir(), file);

@@ -20,9 +20,19 @@ export default function PembaruanModal({ info, tutup }) {
   const [terunduh, setTerunduh] = useState(0)
   const [galat, setGalat] = useState(false)
   const [detailGalat, setDetailGalat] = useState('')
+  const [jalur, setJalur] = useState(null) // { jalur, totalJalur, gantiJalur }
+  const [mandek, setMandek] = useState(false)
   const timerRef = useRef(null)
+  const maksRef = useRef(0) // progres tertinggi yang pernah tercapai (jaga agar tidak mundur)
+  const peristiwaRef = useRef(Date.now())
+  const detakRef = useRef(null)
+  const faseRef = useRef('awal')
+  faseRef.current = fase
 
-  useEffect(() => () => clearTimeout(timerRef.current), [])
+  useEffect(() => () => {
+    clearTimeout(timerRef.current)
+    clearInterval(detakRef.current)
+  }, [])
 
   const mulaiUnduh = async () => {
     if (!Capacitor.isNativePlatform() && !window.__paksaNative) {
@@ -32,14 +42,30 @@ export default function PembaruanModal({ info, tutup }) {
     setGalat(false)
     setProgres(0)
     setTerunduh(0)
+    maksRef.current = 0
+    setJalur(null)
+    setMandek(false)
     setFase('mengunduh')
+    clearInterval(detakRef.current)
+    peristiwaRef.current = Date.now()
+    // Pengawas mandek: tanpa data baru >8 dtk → tampilkan petunjuk jaringan lambat
+    detakRef.current = setInterval(() => {
+      if (faseRef.current !== 'mengunduh') return
+      setMandek(Date.now() - peristiwaRef.current > 8000)
+    }, 2000)
     try {
-      await unduhApk(info.urlUnduh, (p, b) => {
-        setProgres(p)
+      await unduhApk(info.urlUnduh, (p, b, infoJalur) => {
+        peristiwaRef.current = Date.now()
+        setMandek(false)
+        setJalur(infoJalur || null)
+        // Jangan biarkan persen berbalik arah di mata pengguna
+        maksRef.current = Math.max(maksRef.current, p)
+        setProgres(maksRef.current)
         setTerunduh(b)
       })
       setProgres(1)
       setFase('selesai')
+      clearInterval(detakRef.current)
       clearTimeout(timerRef.current)
       timerRef.current = setTimeout(() => setFase('siap-pasang'), 850)
     } catch (e) {
@@ -112,6 +138,22 @@ export default function PembaruanModal({ info, tutup }) {
                         }`}
                         style={progres > 0 ? { width: `${persen}%` } : undefined}
                       />
+                    </div>
+                    <div className="mt-2 flex h-4 items-center justify-between text-[11px] text-black/40">
+                      <span>
+                        {jalur
+                          ? jalur.gantiJalur
+                            ? t('Beralih ke jalur lain…')
+                            : t('Jalur %s dari %s')
+                                .replace('%s', jalur.jalur)
+                                .replace('%s', jalur.totalJalur)
+                          : ''}
+                      </span>
+                      {mandek && (
+                        <span className="anim-muncul font-semibold text-amber-600">
+                          {t('Jaringan lambat…')}
+                        </span>
+                      )}
                     </div>
                   </>
                 ) : (
