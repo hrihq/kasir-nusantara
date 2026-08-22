@@ -11,6 +11,61 @@ import AturPage from './pages/AturPage.jsx'
 
 const URUTAN_TAB = ['kasir', 'menu', 'laporan', 'atur']
 
+const barisCatatan = (teks) =>
+  String(teks || '')
+    .split('\n')
+    .map((b) =>
+      b
+        .trim()
+        .replace(/^#{1,6}\s*/, '')
+        .replace(/^[-*]+\s*/, '')
+        .replace(/\*\*/g, '')
+        .replace(/`/g, ''),
+    )
+    .filter((b) => b && !/^(what.?s changed|full changelog)/i.test(b))
+
+function JendelaPembaruan({ info, tutup }) {
+  return (
+    <Modal open={!!info} onClose={tutup} judul="Pembaruan Tersedia">
+      {info && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <img src="/icon.svg" alt="" className="h-14 w-14 rounded-2xl shadow-kartu" />
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-judul text-lg">Versi {info.versi}</span>
+                <span className="chip bg-merek-lembut text-merek">Baru</span>
+              </div>
+              <p className="text-xs" style={{ color: 'var(--teks)', opacity: 0.55 }}>
+                Yang baru dalam versi ini:
+              </p>
+            </div>
+          </div>
+          {barisCatatan(info.catatan).length > 0 && (
+            <div className="max-h-52 space-y-2 overflow-y-auto rounded-2xl bg-white p-4 shadow-kartu">
+              {barisCatatan(info.catatan).map((b, i) => (
+                <div key={i} className="flex items-start gap-2 text-sm text-black/60">
+                  <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-merek" />
+                  <span>{b}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {!info.urlUnduh.includes('.apk') && (
+            <p className="text-xs text-black/40">Berkas APK belum dilampirkan pada rilis ini.</p>
+          )}
+          <button onClick={() => window.open(info.urlUnduh, '_blank')} className="tombol--utama w-full">
+            Unduh Versi Baru
+          </button>
+          <button onClick={tutup} className="tombol--hantu w-full">
+            Nanti Saja
+          </button>
+        </div>
+      )}
+    </Modal>
+  )
+}
+
 function Splash({ tutup }) {
   return (
     <div
@@ -101,37 +156,7 @@ function Halaman() {
         {tab === 'atur' && <AturPage />}
       </div>
       <TabBar tab={tab} setTab={pindah} />
-      <Modal open={!!infoUpdate} onClose={() => setInfoUpdate(null)} judul="Pembaruan Tersedia">
-        {infoUpdate && (
-          <div className="space-y-3">
-            <div className="rounded-2xl bg-white p-4 shadow-kartu">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-bold">Versi {infoUpdate.versi}</span>
-                <span className="chip bg-merek-lembut text-merek">Baru</span>
-              </div>
-              {infoUpdate.catatan && (
-                <div className="mt-2 max-h-48 overflow-y-auto whitespace-pre-line text-sm text-black/60">
-                  {infoUpdate.catatan}
-                </div>
-              )}
-              {!infoUpdate.urlUnduh.includes('.apk') && (
-                <p className="mt-2 text-xs text-black/40">
-                  File APK belum dilampirkan pada rilis ini.
-                </p>
-              )}
-            </div>
-            <button
-              onClick={() => window.open(infoUpdate.urlUnduh, '_blank')}
-              className="tombol--utama w-full"
-            >
-              Unduh Versi Baru
-            </button>
-            <button onClick={() => setInfoUpdate(null)} className="tombol--hantu w-full">
-              Nanti Saja
-            </button>
-          </div>
-        )}
-      </Modal>
+      <JendelaPembaruan info={infoUpdate} tutup={() => setInfoUpdate(null)} />
     </>
   )
 }
