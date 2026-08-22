@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useStore } from '../context/StoreContext.jsx'
+import { cekPembaruan, VERSI } from '../lib/update.js'
 import { rupiah } from '../lib/format.js'
 import { bacaGambarKecil } from '../lib/gambar.js'
 import { pakaiTema } from '../lib/tema.js'
 import { izinNotifikasi, jadwalkanPengingat } from '../lib/notif.js'
 import PageHeader from '../components/PageHeader.jsx'
 import PesanPudar from '../components/PesanPudar.jsx'
+import PembaruanModal from '../components/PembaruanModal.jsx'
 import { Modal } from '../components/Modal.jsx'
 
 export default function AturPage() {
@@ -19,6 +21,23 @@ export default function AturPage() {
   const [pesanPin, setPesanPin] = useState(null)
   const [matriMati, setMatriMati] = useState(false)
   const [pinMati, setPinMati] = useState('')
+  const [infoAtur, setInfoAtur] = useState(null)
+  const [cekJalan, setCekJalan] = useState(false)
+  const [pesanCek, setPesanCek] = useState(null)
+
+  const jalankanCek = async () => {
+    if (cekJalan) return
+    setCekJalan(true)
+    setPesanCek(null)
+    try {
+      const info = await cekPembaruan()
+      if (info) setInfoAtur(info)
+      else setPesanCek({ ok: true, teks: 'Aplikasi sudah versi terbaru.' })
+    } catch {
+      setPesanCek({ ok: false, teks: 'Gagal memeriksa. Periksa koneksi internet.' })
+    }
+    setCekJalan(false)
+  }
 
   const pinTersimpan = pengaturan.pinKode || ''
 
@@ -420,6 +439,24 @@ export default function AturPage() {
         )}
       </div>
 
+      {/* Pembaruan aplikasi */}
+      <div className="kartu mx-5 mt-4 space-y-2.5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-bold">Pembaruan Aplikasi</div>
+            <div className="text-xs text-black/45">Versi terpasang: {VERSI}</div>
+          </div>
+          <button
+            onClick={jalankanCek}
+            disabled={cekJalan}
+            className="tombol shrink-0 !px-4 !py-2 text-sm ring-1 ring-black/10 hover:bg-krem-tua"
+          >
+            {cekJalan ? 'Memeriksa…' : 'Cek Pembaruan'}
+          </button>
+        </div>
+        {pesanCek && <PesanPudar pesan={pesanCek} onSelesai={() => setPesanCek(null)} />}
+      </div>
+
       {/* Zona data */}
       <div className="kartu mx-5 mt-4 space-y-2.5">
         <h2 className="text-sm font-bold">Kelola Data</h2>
@@ -440,6 +477,7 @@ export default function AturPage() {
       <p className="mt-4 px-5 text-center text-[11px] text-black/35">
         Semua perubahan tersimpan otomatis di perangkat ini.
       </p>
+      <PembaruanModal info={infoAtur} tutup={() => setInfoAtur(null)} />
     </div>
   )
 }

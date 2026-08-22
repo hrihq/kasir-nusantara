@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import { jadwalkanPengingat } from './lib/notif.js'
-import { cekPembaruan } from './lib/update.js'
-import { Modal } from './components/Modal.jsx'
+import { cekPembaruan, sudahDitunda, besok } from './lib/update.js'
+import PembaruanModal from './components/PembaruanModal.jsx'
 import TabBar from './components/TabBar.jsx'
 import KasirPage from './pages/KasirPage.jsx'
 import MenuPage from './pages/MenuPage.jsx'
@@ -11,60 +11,8 @@ import AturPage from './pages/AturPage.jsx'
 
 const URUTAN_TAB = ['kasir', 'menu', 'laporan', 'atur']
 
-const barisCatatan = (teks) =>
-  String(teks || '')
-    .split('\n')
-    .map((b) =>
-      b
-        .trim()
-        .replace(/^#{1,6}\s*/, '')
-        .replace(/^[-*]+\s*/, '')
-        .replace(/\*\*/g, '')
-        .replace(/`/g, ''),
-    )
-    .filter((b) => b && !/^(what.?s changed|full changelog)/i.test(b))
-
-function JendelaPembaruan({ info, tutup }) {
-  return (
-    <Modal open={!!info} onClose={tutup} judul="Pembaruan Tersedia">
-      {info && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <img src="/icon.svg" alt="" className="h-14 w-14 rounded-2xl shadow-kartu" />
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-judul text-lg">Versi {info.versi}</span>
-                <span className="chip bg-merek-lembut text-merek">Baru</span>
-              </div>
-              <p className="text-xs" style={{ color: 'var(--teks)', opacity: 0.55 }}>
-                Yang baru dalam versi ini:
-              </p>
-            </div>
-          </div>
-          {barisCatatan(info.catatan).length > 0 && (
-            <div className="max-h-52 space-y-2 overflow-y-auto rounded-2xl bg-white p-4 shadow-kartu">
-              {barisCatatan(info.catatan).map((b, i) => (
-                <div key={i} className="flex items-start gap-2 text-sm text-black/60">
-                  <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-merek" />
-                  <span>{b}</span>
-                </div>
-              ))}
-            </div>
-          )}
-          {!info.urlUnduh.includes('.apk') && (
-            <p className="text-xs text-black/40">Berkas APK belum dilampirkan pada rilis ini.</p>
-          )}
-          <button onClick={() => window.open(info.urlUnduh, '_blank')} className="tombol--utama w-full">
-            Unduh Versi Baru
-          </button>
-          <button onClick={tutup} className="tombol--hantu w-full">
-            Nanti Saja
-          </button>
-        </div>
-      )}
-    </Modal>
-  )
-}
+const ubahTunda = (setPengaturan) =>
+  setPengaturan((s) => ({ ...s, tundaUpdateSampai: besok() }))
 
 function Splash({ tutup }) {
   return (
@@ -91,12 +39,14 @@ function Splash({ tutup }) {
 }
 
 function Halaman() {
-  const { pengaturan } = useStore()
+  const { pengaturan, setPengaturan } = useStore()
   const [tab, setTab] = useState('kasir')
   const [keKanan, setKeKanan] = useState(true)
   const [infoUpdate, setInfoUpdate] = useState(null)
   const tabSebelumnya = useRef(tab)
   const sentuh = useRef(null)
+  const pengaturanRef = useRef(pengaturan)
+  pengaturanRef.current = pengaturan
 
   useEffect(() => {
     jadwalkanPengingat(!!pengaturan.pengingatAktif, pengaturan.pengingatJam || '18:00')
@@ -104,7 +54,10 @@ function Halaman() {
 
   useEffect(() => {
     const t = setTimeout(() => {
-      cekPembaruan().then(setInfoUpdate)
+      cekPembaruan().then((info) => {
+        if (!info || sudahDitunda(pengaturanRef.current)) return
+        setInfoUpdate(info)
+      })
     }, 2500)
     return () => clearTimeout(t)
   }, [])
@@ -156,7 +109,13 @@ function Halaman() {
         {tab === 'atur' && <AturPage />}
       </div>
       <TabBar tab={tab} setTab={pindah} />
-      <JendelaPembaruan info={infoUpdate} tutup={() => setInfoUpdate(null)} />
+      <PembaruanModal
+        info={infoUpdate}
+        tutup={() => {
+          if (infoUpdate) ubahTunda(setPengaturan)
+          setInfoUpdate(null)
+        }}
+      />
     </>
   )
 }

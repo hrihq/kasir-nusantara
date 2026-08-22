@@ -1,8 +1,14 @@
+import { Capacitor, registerPlugin } from '@capacitor/core'
+import { Filesystem, Directory } from '@capacitor/filesystem'
 import pkg from '../../package.json'
 
 export const VERSI = pkg.version
 
 const GITHUB_REPO = 'hrihq/kasir-nusantara'
+
+export const NAMA_FILE_APK = 'KasirNusantara-pembaruan.apk'
+
+export const PembukaApk = registerPlugin('PembukaApk')
 
 const bandingkanVersi = (a, b) => {
   const pa = String(a).split('.').map(Number)
@@ -32,4 +38,50 @@ export async function cekPembaruan() {
   } catch {
     return null
   }
+}
+
+export const besok = () => {
+  const d = new Date(Date.now() + 86400000)
+  const dua = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${dua(d.getMonth() + 1)}-${dua(d.getDate())}`
+}
+
+export function sudahDitunda(pengaturan) {
+  const s = pengaturan?.tundaUpdateSampai
+  if (!s) return false
+  return new Date(`${s}T23:59:59`) >= new Date()
+}
+
+const blobKeBase64 = (blob) =>
+  new Promise((resolve, reject) => {
+    const r = new FileReader()
+    r.onload = () => resolve(String(r.result).split(',')[1] || '')
+    r.onerror = () => reject(new Error('Gagal membaca berkas'))
+    r.readAsDataURL(blob)
+  })
+
+export async function unduhApk(url, onProgres) {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('Unduhan gagal')
+  const total = Number(res.headers.get('content-length')) || 0
+  const reader = res.body.getReader()
+  const bagian = []
+  let terunduh = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    bagian.push(value)
+    terunduh += value.length
+    onProgres?.(total ? terunduh / total : 0, terunduh)
+  }
+  await Filesystem.writeFile({
+    path: NAMA_FILE_APK,
+    data: await blobKeBase64(new Blob(bagian, { type: 'application/vnd.android.package-archive' })),
+    directory: Directory.Cache,
+  })
+}
+
+export async function pasangApk() {
+  if (!Capacitor.isNativePlatform()) throw new Error('Hanya di perangkat Android')
+  await PembukaApk.install({ file: NAMA_FILE_APK })
 }
