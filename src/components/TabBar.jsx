@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import Ikon from './Ikon.jsx'
+import { t } from '../lib/bahasa.js'
 
 const TABS = [
   { id: 'kasir', label: 'Kasir', ikon: 'keranjang' },
@@ -109,21 +110,21 @@ export default function TabBar({ tab, setTab }) {
             }}
           />
         )}
-        {TABS.map((t) => {
-          const diAtas = t.id === target
+        {TABS.map((tabDef) => {
+          const diAtas = tabDef.id === target
           return (
             <button
-              key={t.id}
-              data-tab={t.id}
+              key={tabDef.id}
+              data-tab={tabDef.id}
               ref={(el) => {
-                tombolRefs.current[t.id] = el
+                tombolRefs.current[tabDef.id] = el
               }}
-              onClick={() => setTab(t.id)}
+              onClick={() => setTab(tabDef.id)}
               className="relative z-[1] flex flex-1 items-center justify-center gap-1.5 rounded-full py-3 text-xs font-semibold transition-colors duration-200 active:scale-95 layar:w-[76px] layar:flex-none layar:flex-col layar:gap-1 layar:px-3"
               style={diAtas ? { color: '#ffffff' } : { color: 'var(--teks)', opacity: 0.55 }}
             >
-              <Ikon nama={t.ikon} className="h-[19px] w-[19px]" />
-              <span className="leading-none">{t.label}</span>
+              <Ikon nama={tabDef.ikon} className="h-[19px] w-[19px]" />
+              <span className="leading-none">{t(tabDef.label)}</span>
             </button>
           )
         })}

@@ -1,20 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Capacitor } from '@capacitor/core'
 import { Modal } from './Modal.jsx'
-import { unduhApk, pasangApk } from '../lib/update.js'
-
-const barisCatatan = (teks) =>
-  String(teks || '')
-    .split('\n')
-    .map((b) =>
-      b
-        .trim()
-        .replace(/^#{1,6}\s*/, '')
-        .replace(/^[-*]+\s*/, '')
-        .replace(/\*\*/g, '')
-        .replace(/`/g, ''),
-    )
-    .filter((b) => b && !/^(what.?s changed|full changelog)/i.test(b))
+import { unduhApk, pasangApk, barisCatatan } from '../lib/update.js'
+import { t } from '../lib/bahasa.js'
 
 const mb = (b) => `${(b / 1048576).toFixed(1)} MB`
 
@@ -77,7 +65,7 @@ export default function PembaruanModal({ info, tutup }) {
     (fase === 'awal' || fase === 'gagal' || fase === 'siap-pasang') && poin.length > 0
 
   return (
-    <Modal open={!!info} onClose={tutup} judul="Pembaruan Tersedia">
+    <Modal open={!!info} onClose={tutup} judul={t('Pembaruan Tersedia')}>
       {info && (
         <div className="space-y-3">
           <div className="flex items-center gap-3">
@@ -85,14 +73,14 @@ export default function PembaruanModal({ info, tutup }) {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-judul text-lg">Versi {info.versi}</span>
-                <span className="chip bg-merek-lembut text-merek">Baru</span>
+                <span className="chip bg-merek-lembut text-merek">{t('Baru')}</span>
               </div>
               <p className="text-xs" style={{ color: 'var(--teks)', opacity: 0.55 }}>
                 {fase === 'mengunduh'
-                  ? `Mengunduh… ${terunduh > 0 ? mb(terunduh) : ''}`
+                  ? `${t('Mengunduh…')} ${terunduh > 0 ? mb(terunduh) : ''}`
                   : fase === 'selesai'
-                    ? 'Berkas siap dipasang.'
-                    : 'Yang baru dalam versi ini:'}
+                    ? t('Berkas siap dipasang.')
+                    : t('Yang baru dalam versi ini:')}
               </p>
             </div>
           </div>
@@ -114,7 +102,7 @@ export default function PembaruanModal({ info, tutup }) {
                 {fase === 'mengunduh' ? (
                   <>
                     <div className="mb-2 flex items-center justify-between text-xs font-semibold text-black/50">
-                      <span>Menyiapkan berkas pemasangan…</span>
+                      <span>{t('Menyiapkan berkas pemasangan…')}</span>
                       <span>{persen}%</span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-black/10">
@@ -132,9 +120,10 @@ export default function PembaruanModal({ info, tutup }) {
                       <IkonSelesai />
                     </span>
                     <div>
-                      <p className="text-sm font-bold">Unduhan Selesai</p>
+                      <p className="text-sm font-bold">{t('Unduhan Selesai')}</p>
                       <p className="text-xs text-black/50">
-                        {terunduh > 0 ? `${mb(terunduh)} · ` : ''}Menyiapkan pemasangan…
+                        {terunduh > 0 ? `${mb(terunduh)} · ` : ''}
+                        {t('Menyiapkan pemasangan…')}
                       </p>
                     </div>
                   </div>
@@ -145,7 +134,7 @@ export default function PembaruanModal({ info, tutup }) {
             {galat && (
               <>
                 <p className="text-center text-xs font-semibold text-red-600">
-                  Unduhan gagal setelah mencoba beberapa jalur.
+                  {t('Unduhan gagal setelah mencoba beberapa jalur.')}
                 </p>
                 {detailGalat && (
                   <p className="text-center text-[10px] text-black/40">{detailGalat}</p>
@@ -154,12 +143,12 @@ export default function PembaruanModal({ info, tutup }) {
             )}
 
             {!info.urlUnduh.includes('.apk') && (
-              <p className="text-xs text-black/40">Berkas APK belum dilampirkan pada rilis ini.</p>
+              <p className="text-xs text-black/40">{t('Berkas APK belum dilampirkan pada rilis ini.')}</p>
             )}
 
             {(fase === 'awal' || fase === 'gagal') && info.urlUnduh.includes('.apk') && (
               <button onClick={mulaiUnduh} className="tombol--utama w-full">
-                {fase === 'gagal' ? 'Coba Lagi' : 'Unduh Sekarang'}
+                {fase === 'gagal' ? t('Coba Lagi') : t('Unduh Sekarang')}
               </button>
             )}
             {galat && (
@@ -167,26 +156,26 @@ export default function PembaruanModal({ info, tutup }) {
                 onClick={() => window.open(info.urlUnduh, '_blank')}
                 className="tombol--hantu w-full"
               >
-                Unduh lewat Browser
+                {t('Unduh lewat Browser')}
               </button>
             )}
             {fase === 'mengunduh' && (
               <button disabled className="tombol--utama w-full opacity-60">
-                Mengunduh… {persen}%
+                {t('Mengunduh…')} {persen}%
               </button>
             )}
             {fase === 'siap-pasang' && (
               <button onClick={pasang} className="tombol--utama w-full">
-                Pasang Sekarang
+                {t('Pasang Sekarang')}
               </button>
             )}
             {!info.urlUnduh.includes('.apk') && (
               <button onClick={() => window.open(info.urlUnduh, '_blank')} className="tombol--utama w-full">
-                Lihat di GitHub
+                {t('Lihat di GitHub')}
               </button>
             )}
             <button onClick={tutup} className="tombol--hantu w-full">
-              Nanti Saja
+              {t('Nanti Saja')}
             </button>
           </div>
         </div>

@@ -16,6 +16,7 @@ android/capacitor-cordova-android-plugins/
 android/app/src/main/assets/public/
 
 .tools/
+.freebuff/
 
 dev-server.log
 

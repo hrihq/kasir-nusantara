@@ -3,6 +3,7 @@ import { useStore } from '../context/StoreContext.jsx'
 import { rupiah } from '../lib/format.js'
 import { bacaGambarKecil } from '../lib/gambar.js'
 import { bunyiSukses } from '../lib/suara.js'
+import { t } from '../lib/bahasa.js'
 import PesanPudar from '../components/PesanPudar.jsx'
 import { pakaiTema } from '../lib/tema.js'
 import Ikon from '../components/Ikon.jsx'
@@ -49,7 +50,7 @@ function InputQty({ nilai, ubah }) {
         ubah(aman)
       }}
       className="w-12 rounded-lg border border-black/10 bg-white py-1 text-center text-sm font-bold outline-none focus:border-merek"
-      aria-label="Jumlah"
+      aria-label={t('Jumlah')}
     />
   )
 }
@@ -72,9 +73,9 @@ function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, gar
     try {
       const dataUrl = await bacaGambarKecil(berkas, 640)
       setPengaturan((s) => ({ ...s, qrisGambar: dataUrl }))
-      setPesanQris({ ok: true, teks: 'QRIS tersimpan.' })
+      setPesanQris({ ok: true, teks: t('QRIS tersimpan.') })
     } catch {
-      setPesanQris({ ok: false, teks: 'Gagal membaca gambar.' })
+      setPesanQris({ ok: false, teks: t('Gagal membaca gambar.') })
     }
   }
 
@@ -96,23 +97,23 @@ function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, gar
   }
 
   return (
-    <Modal open={open} onClose={onClose} judul="Pembayaran">
+    <Modal open={open} onClose={onClose} judul={t('Pembayaran')}>
       <div className="space-y-1.5 rounded-2xl bg-white p-4 text-sm shadow-kartu">
-        <BarisRingkas label="Subtotal" nilai={rupiah(subtotal)} />
-        {ppnPersen > 0 && <BarisRingkas label={`PPN ${ppnPersen}%`} nilai={rupiah(ppnNominal)} />}
+        <BarisRingkas label={t('Subtotal')} nilai={rupiah(subtotal)} />
+        {ppnPersen > 0 && <BarisRingkas label={`${t('PPN')} ${ppnPersen}%`} nilai={rupiah(ppnNominal)} />}
         <div className="flex justify-between pt-1 text-base font-bold">
-          <span>Total Tagihan</span>
+          <span>{t('Total Tagihan')}</span>
           <span className="text-merek">{rupiah(total)}</span>
         </div>
         {metode === 'Tunai' && totalAkhir !== total && (
           <p className="mt-1 text-right text-xs font-semibold text-merek">
-            Tunai dibulatkan jadi {rupiah(totalAkhir)}
+            {t('Tunai dibulatkan jadi %s').replace('%s', rupiah(totalAkhir))}
           </p>
         )}
       </div>
 
       <div className="mt-4">
-        <span className="label">Metode Pembayaran</span>
+        <span className="label">{t('Metode Pembayaran')}</span>
         <div className="grid grid-cols-2 gap-2">
           {['Tunai', 'QRIS'].map((m) => (
             <button
@@ -124,7 +125,7 @@ function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, gar
                   : 'bg-white text-black/60 ring-1 ring-black/10'
               }`}
             >
-              {m}
+              {t(m)}
             </button>
           ))}
         </div>
@@ -132,7 +133,7 @@ function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, gar
 
       {metode === 'Tunai' && (
         <div className="mt-4">
-          <span className="label">Uang Diterima</span>
+          <span className="label">{t('Uang Diterima')}</span>
           <div className="relative">
             <span
               className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold"
@@ -156,7 +157,7 @@ function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, gar
                 onClick={() => setBayar(String(v))}
                 className="chip bg-white text-black/60 ring-1 ring-black/10"
               >
-                {i === 0 ? 'Uang Pas' : rupiah(v)}
+                {i === 0 ? t('Uang Pas') : rupiah(v)}
               </button>
             ))}
           </div>
@@ -165,9 +166,9 @@ function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, gar
               !bayar ? 'bg-white' : kembalian >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
             }`}
           >
-            <span>Kembalian</span>
+            <span>{t('Kembalian')}</span>
             <span>
-              {!bayar ? '—' : kembalian >= 0 ? rupiah(kembalian) : `Kurang ${rupiah(-kembalian)}`}
+              {!bayar ? '—' : kembalian >= 0 ? rupiah(kembalian) : `${t('Kurang')} ${rupiah(-kembalian)}`}
             </span>
           </div>
         </div>
@@ -179,15 +180,15 @@ function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, gar
             <div className="flex flex-col items-center gap-2 rounded-2xl bg-white p-4 shadow-kartu">
               <img src={pengaturan.qrisGambar} alt="Kode QRIS" className="max-h-60 rounded-xl" />
               <label className="chip cursor-pointer gap-1.5 bg-krem-tua text-xs">
-                Ganti QRIS
+                {t('Ganti QRIS')}
                 <input type="file" accept="image/*" className="hidden" onChange={unggahQris} />
               </label>
             </div>
           ) : (
             <label className="flex cursor-pointer flex-col items-center gap-1 rounded-2xl border border-dashed border-black/25 py-7 text-center">
               <Ikon nama="foto" className="h-8 w-8 text-merek" />
-              <span className="text-sm font-bold">Tambahkan QRIS</span>
-              <span className="text-xs text-black/45">Ambil foto atau pilih gambar kode QRIS-mu</span>
+              <span className="text-sm font-bold">{t('Tambahkan QRIS')}</span>
+              <span className="text-xs text-black/45">{t('Ambil foto atau pilih gambar kode QRIS-mu')}</span>
               <input type="file" accept="image/*" className="hidden" onChange={unggahQris} />
             </label>
           )}
@@ -196,7 +197,7 @@ function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, gar
       )}
 
       <button disabled={!cukup} onClick={selesai} className="tombol--utama mt-5 w-full">
-        Selesaikan Transaksi
+        {t('Selesaikan Transaksi')}
       </button>
     </Modal>
   )
@@ -276,11 +277,11 @@ export default function KasirPage() {
             />
             <div className="min-w-0 flex-1">
               <div className="truncate font-judul text-xl leading-tight">{pengaturan.namaToko}</div>
-              <div className="text-xs text-white/70">Kasir siap melayani</div>
+              <div className="text-xs text-white/70">{t('Kasir siap melayani')}</div>
             </div>
             <button
               onClick={gantiTema}
-              aria-label={gelap ? 'Mode terang' : 'Mode gelap'}
+              aria-label={gelap ? t('Mode terang') : t('Mode gelap')}
               className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/15 text-krem transition duration-200 active:scale-90"
             >
               <Ikon nama={gelap ? 'matahari' : 'bulan'} className="h-5 w-5" />
@@ -294,7 +295,7 @@ export default function KasirPage() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Cari menu…"
+              placeholder={t('Cari menu…')}
               className="input pl-10 text-tinta"
             />
           </div>
@@ -309,7 +310,7 @@ export default function KasirPage() {
             onClick={() => setKat(k)}
             className={`chip ${kat === k ? 'bg-merek text-white' : 'bg-white text-black/60 ring-1 ring-black/10'}`}
           >
-            {k}
+            {k === 'Semua' ? t('Semua') : k}
           </button>
         ))}
       </div>
@@ -340,22 +341,22 @@ export default function KasirPage() {
           <span className="grid h-16 w-16 place-items-center rounded-2xl bg-merek-lembut text-merek">
             <Ikon nama="kotak" className="h-7 w-7" />
           </span>
-          <p className="text-base font-bold">Menu masih kosong</p>
+          <p className="text-base font-bold">{t('Menu masih kosong')}</p>
           <p className="max-w-[250px] text-xs leading-relaxed text-black/45">
-            Tambahkan menu pertamamu untuk mulai berjualan.
+            {t('Tambahkan menu pertamamu untuk mulai berjualan.')}
           </p>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('kasir:buka-tab', { detail: 'menu' }))}
             className="tombol--utama mt-1 !px-4 !py-2.5 text-sm"
           >
-            Tambah Menu Pertama
+            {t('Tambah Menu Pertama')}
           </button>
         </div>
       ) : (
         hasil.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-16 text-black/35">
             <Ikon nama="cari" className="h-8 w-8" />
-            <p className="text-sm">Menu tidak ditemukan.</p>
+            <p className="text-sm">{t('Menu tidak ditemukan.')}</p>
           </div>
         )
       )}
@@ -371,7 +372,7 @@ export default function KasirPage() {
               <span className="grid h-6 w-6 place-items-center rounded-full bg-white/25 text-xs font-bold">
                 {jmlItem}
               </span>
-              Keranjang
+              {t('Keranjang')}
             </span>
             <span>{rupiah(total)}</span>
           </button>
@@ -379,9 +380,9 @@ export default function KasirPage() {
       )}
 
       {/* Lembar keranjang */}
-      <Modal open={sheetBuka} onClose={() => setSheetBuka(false)} judul="Keranjang">
+      <Modal open={sheetBuka} onClose={() => setSheetBuka(false)} judul={t('Keranjang')}>
         {garis.length === 0 ? (
-          <p className="py-6 text-center text-sm text-black/40">Belum ada item.</p>
+          <p className="py-6 text-center text-sm text-black/40">{t('Belum ada item.')}</p>
         ) : (
           <>
             <ul className="space-y-2.5">
@@ -399,7 +400,7 @@ export default function KasirPage() {
                     <button
                       onClick={() => ubahQty(g.id, -1)}
                       className="grid h-8 w-8 place-items-center rounded-full bg-krem-tua active:scale-90"
-                      aria-label="Kurangi"
+                      aria-label={t('Kurangi')}
                     >
                       <Ikon nama="minus" className="h-4 w-4" />
                     </button>
@@ -407,7 +408,7 @@ export default function KasirPage() {
                     <button
                       onClick={() => ubahQty(g.id, 1)}
                       className="grid h-8 w-8 place-items-center rounded-full bg-merek text-white active:scale-90"
-                      aria-label="Tambah"
+                      aria-label={t('Tambah')}
                     >
                       <Ikon nama="plus" className="h-4 w-4" />
                     </button>
@@ -419,10 +420,10 @@ export default function KasirPage() {
               ))}
             </ul>
             <div className="mt-4 space-y-1.5 rounded-2xl bg-white p-4 text-sm shadow-kartu">
-              <BarisRingkas label="Subtotal" nilai={rupiah(subtotal)} />
-              {ppnPersen > 0 && <BarisRingkas label={`PPN ${ppnPersen}%`} nilai={rupiah(ppnNominal)} />}
+              <BarisRingkas label={t('Subtotal')} nilai={rupiah(subtotal)} />
+              {ppnPersen > 0 && <BarisRingkas label={`${t('PPN')} ${ppnPersen}%`} nilai={rupiah(ppnNominal)} />}
               <div className="flex justify-between border-t border-dashed border-black/15 pt-2 text-base font-bold">
-                <span>Total</span>
+                <span>{t('Total')}</span>
                 <span className="text-merek">{rupiah(total)}</span>
               </div>
             </div>
@@ -433,7 +434,7 @@ export default function KasirPage() {
               }}
               className="tombol--utama mt-4 w-full"
             >
-              Bayar Sekarang
+              {t('Bayar Sekarang')}
             </button>
           </>
         )}
