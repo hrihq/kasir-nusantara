@@ -1,5 +1,7 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
 import { Filesystem, Directory } from '@capacitor/filesystem'
+import { LocalNotifications } from '@capacitor/local-notifications'
+import { t } from './bahasa.js'
 import pkg from '../../package.json'
 
 export const VERSI = pkg.version
@@ -124,3 +126,58 @@ export async function bersihkanSisa() {
     return 0
   }
 }
+
+// Notifikasi lokal: ada pembaruan tersedia
+export async function kirimNotif(info) {
+  try {
+    if (!Capacitor.isNativePlatform()) return
+    const izin = await LocalNotifications.checkPermissions()
+    let status = izin.display
+    if (status !== 'granted') {
+      const minta = await LocalNotifications.requestPermissions()
+      status = minta.display
+    }
+    if (status !== 'granted') return
+    await LocalNotifications.schedule({
+      notifications: [
+        {
+          id: 4201,
+          title: `${t('Pembaruan v')}${info.versi} ${t('tersedia')}`,
+          body: t('Buka aplikasi untuk mengunduh versi terbaru.'),
+          schedule: { at: new Date(Date.now() + 400) },
+        },
+      ],
+    })
+  } catch {
+    /* diam — notifikasi bukan hal kritis */
+  }
+}
+
+// Ambil catatan rilis versi tertentu (untuk popup pasca-pembaruan)
+export async function ambilCatatanVersi(versi) {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_REPO}/releases/tags/v${versi}`,
+      { headers: { Accept: 'application/vnd.github+json' } },
+    )
+    if (!res.ok) return ''
+    const data = await res.json()
+    return data.body || ''
+  } catch {
+    return ''
+  }
+}
+
+// Ubah teks catatan rilis menjadi daftar baris bersih
+export const barisCatatan = (teks) =>
+  String(teks || '')
+    .split('\n')
+    .map((b) =>
+      b
+        .trim()
+        .replace(/^#{1,6}\s*/, '')
+        .replace(/^[-*]+\s*/, '')
+        .replace(/\*\*/g, '')
+        .replace(/`/g, ''),
+    )
+    .filter((b) => b && !/^(what.?s changed|full changelog)/i.test(b))

@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import { jadwalkanPengingat } from './lib/notif.js'
-import { cekPembaruan, sudahDitunda, besok, bersihkanSisa } from './lib/update.js'
+import { cekPembaruan, sudahDitunda, besok, bersihkanSisa, kirimNotif, VERSI } from './lib/update.js'
+import { pakaiBahasa } from './lib/bahasa.js'
 import PembaruanModal from './components/PembaruanModal.jsx'
+import CatatanRilisModal from './components/CatatanRilisModal.jsx'
 import TabBar from './components/TabBar.jsx'
 import KasirPage from './pages/KasirPage.jsx'
 import MenuPage from './pages/MenuPage.jsx'
@@ -40,9 +42,11 @@ function Splash({ tutup }) {
 
 function Halaman() {
   const { pengaturan, setPengaturan } = useStore()
+  pakaiBahasa()
   const [tab, setTab] = useState('kasir')
   const [keKanan, setKeKanan] = useState(true)
   const [infoUpdate, setInfoUpdate] = useState(null)
+  const [rilisBaru, setRilisBaru] = useState(false)
   const tabSebelumnya = useRef(tab)
   const sentuh = useRef(null)
   const pengaturanRef = useRef(pengaturan)
@@ -54,9 +58,18 @@ function Halaman() {
 
   useEffect(() => {
     bersihkanSisa()
+    // Popup catatan rilis: hanya sekali, tepat setelah aplikasi diperbarui
+    const versiTercatat = localStorage.getItem('kasir_versi_terakhir')
+    if (versiTercatat && versiTercatat !== VERSI) {
+      localStorage.setItem('kasir_versi_terakhir', VERSI)
+      setRilisBaru(true)
+    } else if (!versiTercatat) {
+      localStorage.setItem('kasir_versi_terakhir', VERSI)
+    }
     const t = setTimeout(() => {
       cekPembaruan().then((info) => {
         if (!info || sudahDitunda(pengaturanRef.current)) return
+        kirimNotif(info)
         setInfoUpdate(info)
       })
     }, 2500)
@@ -110,6 +123,7 @@ function Halaman() {
         {tab === 'atur' && <AturPage />}
       </div>
       <TabBar tab={tab} setTab={pindah} />
+      <CatatanRilisModal buka={rilisBaru} tutup={() => setRilisBaru(false)} />
       <PembaruanModal
         info={infoUpdate}
         tutup={() => {

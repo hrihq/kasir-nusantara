@@ -5,6 +5,7 @@ import { eksporCadangan, imporCadangan } from '../lib/cadangan.js'
 import { rupiah } from '../lib/format.js'
 import { bacaGambarKecil } from '../lib/gambar.js'
 import { pakaiTema, LABEL_TEMA } from '../lib/tema.js'
+import { t, pakaiBahasa } from '../lib/bahasa.js'
 import { izinNotifikasi, jadwalkanPengingat } from '../lib/notif.js'
 import PageHeader from '../components/PageHeader.jsx'
 import PesanPudar from '../components/PesanPudar.jsx'
@@ -15,6 +16,7 @@ export default function AturPage() {
   const { pengaturan, setPengaturan, transaksi, setTransaksi, pengeluaran, setPengeluaran } =
     useStore()
   const [gelap, gantiTema, mode] = pakaiTema()
+  const [bahasaAktif, gantiBahasa] = pakaiBahasa()
   const [pinLama, setPinLama] = useState('')
   const [pinBaru, setPinBaru] = useState('')
   const [pinUlang, setPinUlang] = useState('')
@@ -34,9 +36,9 @@ export default function AturPage() {
     setPesanCadangan(null)
     try {
       await eksporCadangan()
-      setPesanCadangan({ ok: true, teks: 'Cadangan siap — kirim ke WhatsApp/Drive untuk disimpan.' })
+      setPesanCadangan({ ok: true, teks: t('Cadangan siap — kirim ke WhatsApp/Drive untuk disimpan.') })
     } catch (g) {
-      setPesanCadangan({ ok: false, teks: `Gagal membuat cadangan: ${g?.message || 'coba lagi'}` })
+      setPesanCadangan({ ok: false, teks: `${t('Gagal membuat cadangan:')} ${g?.message || t('Coba Lagi')}` })
     }
     setCadanganJalan(false)
   }
@@ -52,7 +54,7 @@ export default function AturPage() {
       location.reload()
     } catch (g) {
       setCadanganJalan(false)
-      setPesanCadangan({ ok: false, teks: g.message || 'Gagal memulihkan cadangan.' })
+      setPesanCadangan({ ok: false, teks: g.message || t('Gagal memulihkan cadangan.') })
     }
   }
 
@@ -71,9 +73,9 @@ export default function AturPage() {
     try {
       const info = await cekPembaruan()
       if (info) setInfoAtur(info)
-      else setPesanCek({ ok: true, teks: 'Aplikasi sudah versi terbaru.' })
+      else setPesanCek({ ok: true, teks: t('Aplikasi sudah versi terbaru.') })
     } catch {
-      setPesanCek({ ok: false, teks: 'Gagal memeriksa. Periksa koneksi internet.' })
+      setPesanCek({ ok: false, teks: t('Gagal memeriksa. Periksa koneksi internet.') })
     }
     setCekJalan(false)
   }
@@ -88,21 +90,21 @@ export default function AturPage() {
 
   const simpanPin = () => {
     if (pinTersimpan && pinLama !== pinTersimpan) {
-      setPesanPin({ ok: false, teks: 'PIN lama salah.' })
+      setPesanPin({ ok: false, teks: t('PIN lama salah.') })
       return
     }
     if (!/^\d{4,8}$/.test(pinBaru)) {
-      setPesanPin({ ok: false, teks: 'PIN harus 4–8 angka.' })
+      setPesanPin({ ok: false, teks: t('PIN harus 4–8 angka.') })
       return
     }
     if (pinBaru !== pinUlang) {
-      setPesanPin({ ok: false, teks: 'Ketikan ulang PIN belum sama.' })
+      setPesanPin({ ok: false, teks: t('Ketikan ulang PIN belum sama.') })
       return
     }
     ubah('pinKode', pinBaru)
     bersihkanFormPin()
     setGantiBuka(false)
-    setPesanPin({ ok: true, teks: pinTersimpan ? 'PIN berhasil diganti.' : 'PIN aktif. Menu terkunci.' })
+    setPesanPin({ ok: true, teks: pinTersimpan ? t('PIN berhasil diganti.') : t('PIN aktif. Menu terkunci.') })
   }
 
   const saklarKunci = () => {
@@ -112,7 +114,7 @@ export default function AturPage() {
         ubah('pinAktif', false)
         setGantiBuka(false)
         bersihkanFormPin()
-        setPesanPin({ ok: true, teks: 'Kunci menu dimatikan.' })
+        setPesanPin({ ok: true, teks: t('Kunci menu dimatikan.') })
         return
       }
       setPinMati('')
@@ -125,7 +127,7 @@ export default function AturPage() {
 
   const konfirmasiMatikan = () => {
     if (pinMati !== pinTersimpan) {
-      setPesanPin({ ok: false, teks: 'PIN lama salah. Kunci tetap menyala.' })
+      setPesanPin({ ok: false, teks: t('PIN lama salah. Kunci tetap menyala.') })
       setMatriMati(false)
       return
     }
@@ -133,14 +135,14 @@ export default function AturPage() {
     setMatriMati(false)
     setGantiBuka(false)
     bersihkanFormPin()
-    setPesanPin({ ok: true, teks: 'Kunci menu dimatikan.' })
+    setPesanPin({ ok: true, teks: t('Kunci menu dimatikan.') })
   }
 
   const ubahPengingat = async (aktif, jam) => {
     if (aktif) {
       const izin = await izinNotifikasi()
       if (izin !== 'granted') {
-        alert('Izin notifikasi ditolak. Aktifkan izin notifikasi untuk aplikasi ini di pengaturan HP.')
+        alert(t('Izin notifikasi ditolak. Aktifkan izin notifikasi untuk aplikasi ini di pengaturan HP.'))
         return
       }
     }
@@ -162,13 +164,13 @@ export default function AturPage() {
   }
 
   const resetTransaksi = () => {
-    if (!confirm('Hapus semua riwayat transaksi & pengeluaran?')) return
+    if (!confirm(t('Hapus semua riwayat transaksi & pengeluaran?'))) return
     setTransaksi([])
     setPengeluaran([])
   }
 
   const resetSemua = () => {
-    if (!confirm('PERMANEN: hapus SEMUA data (menu, transaksi, pengaturan) lalu muat ulang?')) return
+    if (!confirm(t('PERMANEN: hapus SEMUA data (menu, transaksi, pengaturan) lalu muat ulang?'))) return
     for (const k of [
       'kasir_produk',
       'kasir_transaksi',
@@ -185,29 +187,47 @@ export default function AturPage() {
 
   return (
     <div className="pb-32">
-      <PageHeader judul="Pengaturan" sub="Toko, struk, dan pajak" />
+      <PageHeader judul={t('Pengaturan')} sub={t('Toko, struk, dan pajak')} />
 
       {/* Tampilan */}
       <div className="kartu mx-5 mt-4 flex items-center justify-between gap-3">
         <div>
-          <div className="text-sm font-bold">Tema</div>
+          <div className="text-sm font-bold">{t('Tema')}</div>
           <div className="text-xs text-black/45">
-            {mode === 'sistem' ? 'Mengikuti tampilan HP-mu' : mode === 'gelap' ? 'Selalu gelap' : 'Selalu terang'}
+            {mode === 'sistem' ? t('Mengikuti tampilan HP-mu') : mode === 'gelap' ? t('Selalu gelap') : t('Selalu terang')}
           </div>
         </div>
         <button
           onClick={gantiTema}
           className="tombol--hantu shrink-0 !px-4 !py-2 text-xs"
         >
-          {LABEL_TEMA[mode]}
+          {t(LABEL_TEMA[mode])}
         </button>
+      </div>
+
+      {/* Bahasa */}
+      <div className="kartu mx-5 mt-4 flex items-center justify-between gap-3">
+        <div>
+          <div className="text-sm font-bold">{t('Bahasa')}</div>
+          <div className="text-xs text-black/45">{t('Ikuti bahasa HP-mu')}</div>
+        </div>
+        <select
+          className="input !w-[132px] shrink-0 !px-2 !py-2 text-xs"
+          value={bahasaAktif}
+          onChange={(e) => gantiBahasa(e.target.value)}
+          aria-label={t('Bahasa')}
+        >
+          <option value="sistem">{t('Ikuti Sistem')}</option>
+          <option value="id">Indonesia</option>
+          <option value="en">English</option>
+        </select>
       </div>
 
       {/* Pengingat */}
       <div className="kartu mx-5 mt-4 flex items-center justify-between gap-3">
         <div>
-          <div className="text-sm font-bold">Pengingat Harian</div>
-          <div className="text-xs text-black/45">Notifikasi pengingat mencatat penjualan</div>
+          <div className="text-sm font-bold">{t('Pengingat Harian')}</div>
+          <div className="text-xs text-black/45">{t('Notifikasi pengingat mencatat penjualan')}</div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <input
@@ -238,13 +258,13 @@ export default function AturPage() {
       <div className="kartu mx-5 mt-4 space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-sm font-bold">Kunci Menu dengan PIN</div>
+            <div className="text-sm font-bold">{t('Kunci Menu dengan PIN')}</div>
             <div className="text-xs text-black/45">
               {pengaturan.pinAktif
                 ? pinTersimpan && !gantiBuka
-                  ? 'Menu terkunci — tambah, ubah, dan hapus butuh PIN'
-                  : 'Buat PIN untuk mengunci menu'
-                : 'Tambah, ubah, dan hapus menu harus lewat PIN'}
+                  ? t('Menu terkunci — tambah, ubah, dan hapus butuh PIN')
+                  : t('Buat PIN untuk mengunci menu')
+                : t('Tambah, ubah, dan hapus menu harus lewat PIN')}
             </div>
           </div>
           <button
@@ -273,7 +293,7 @@ export default function AturPage() {
             }}
             className="tombol--hantu w-full !py-2.5 text-xs"
           >
-            {pinTersimpan ? 'Ganti PIN' : 'Buat PIN'}
+            {pinTersimpan ? t('Ganti PIN') : t('Buat PIN')}
           </button>
         )}
 
@@ -288,7 +308,7 @@ export default function AturPage() {
                   setPinLama(e.target.value.replace(/\D/g, '').slice(0, 8))
                   setPesanPin(null)
                 }}
-                placeholder={pinTersimpan ? 'PIN lama saat ini' : ''}
+                placeholder={pinTersimpan ? t('PIN lama saat ini') : ''}
                 className="input"
               />
             )}
@@ -301,7 +321,7 @@ export default function AturPage() {
                   setPinBaru(e.target.value.replace(/\D/g, '').slice(0, 8))
                   setPesanPin(null)
                 }}
-                placeholder={pinTersimpan ? 'PIN baru' : 'Buat PIN (4–8 angka)'}
+                placeholder={pinTersimpan ? t('PIN baru') : t('Buat PIN (4–8 angka)')}
                 className="input"
               />
               <input
@@ -312,12 +332,12 @@ export default function AturPage() {
                   setPinUlang(e.target.value.replace(/\D/g, '').slice(0, 8))
                   setPesanPin(null)
                 }}
-                placeholder="Ulangi PIN"
+                placeholder={t('Ulangi PIN')}
                 className="input"
               />
             </div>
             <button onClick={simpanPin} className="tombol--utama w-full !py-2.5 text-sm">
-              Simpan PIN
+              {t('Simpan PIN')}
             </button>
           </>
         )}
@@ -325,9 +345,9 @@ export default function AturPage() {
       </div>
 
       {/* Matikan kunci — konfirmasi PIN */}
-      <Modal open={matriMati} onClose={() => setMatriMati(false)} judul="Matikan Kunci Menu">
+      <Modal open={matriMati} onClose={() => setMatriMati(false)} judul={t('Matikan Kunci Menu')}>
         <p className="text-sm text-black/55">
-          Masukkan PIN saat ini untuk menonaktifkan kunci menu.
+          {t('Masukkan PIN saat ini untuk menonaktifkan kunci menu.')}
         </p>
         <input
           type="password"
@@ -343,29 +363,29 @@ export default function AturPage() {
         />
         <div className="mt-4 grid grid-cols-2 gap-2">
           <button onClick={() => setMatriMati(false)} className="tombol--hantu w-full">
-            Batal
+            {t('Batal')}
           </button>
           <button onClick={konfirmasiMatikan} disabled={!pinMati} className="tombol--utama w-full">
-            Matikan
+            {t('Matikan')}
           </button>
         </div>
       </Modal>
 
       {/* Profil toko */}
       <div className="kartu mx-5 mt-4 space-y-4">
-        <h2 className="text-sm font-bold">Profil Toko & Struk</h2>
+        <h2 className="text-sm font-bold">{t('Profil Toko & Struk')}</h2>
 
         <div className="flex items-center gap-4">
           <span className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-krem-tua text-xs text-black/40">
             {pengaturan.logo ? (
-              <img src={pengaturan.logo} alt="Logo toko" className="h-full w-full object-contain" />
+              <img src={pengaturan.logo} alt="" className="h-full w-full object-contain" />
             ) : (
-              'Logo'
+              t('Logo')
             )}
           </span>
           <div className="flex flex-col items-start gap-1.5">
             <label className="tombol--hantu cursor-pointer !px-3 !py-2 text-xs">
-              Unggah Logo
+              {t('Unggah Logo')}
               <input type="file" accept="image/*" className="hidden" onChange={unggahLogo} />
             </label>
             {pengaturan.logo && (
@@ -373,47 +393,47 @@ export default function AturPage() {
                 onClick={() => ubah('logo', null)}
                 className="text-left text-xs text-red-500 underline underline-offset-2"
               >
-                Hapus logo
+                {t('Hapus logo')}
               </button>
             )}
           </div>
         </div>
 
         <div>
-          <span className="label">Nama Toko</span>
+          <span className="label">{t('Nama Toko')}</span>
           <input
             className="input"
             value={pengaturan.namaToko}
             onChange={(e) => ubah('namaToko', e.target.value)}
-            placeholder="Nama tokomu"
+            placeholder={t('Nama tokomu')}
           />
         </div>
         <div>
-          <span className="label">Alamat</span>
+          <span className="label">{t('Alamat')}</span>
           <input
             className="input"
             value={pengaturan.alamat}
             onChange={(e) => ubah('alamat', e.target.value)}
-            placeholder="Alamat toko"
+            placeholder={t('Alamat toko')}
           />
         </div>
         <div>
-          <span className="label">Telepon</span>
+          <span className="label">{t('Telepon')}</span>
           <input
             className="input"
             value={pengaturan.telepon}
             onChange={(e) => ubah('telepon', e.target.value)}
-            placeholder="No. telepon"
+            placeholder={t('No. telepon')}
           />
         </div>
         <div>
-          <span className="label">Catatan Bawah Struk</span>
+          <span className="label">{t('Catatan Bawah Struk')}</span>
           <textarea
             className="input resize-none"
             rows={2}
             value={pengaturan.catatanStruk}
             onChange={(e) => ubah('catatanStruk', e.target.value)}
-            placeholder="cth. Terima kasih sudah berbelanja"
+            placeholder={t('cth. Terima kasih sudah berbelanja')}
           />
         </div>
       </div>
@@ -422,8 +442,8 @@ export default function AturPage() {
       <div className="kartu mx-5 mt-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-sm font-bold">PPN / Pajak Otomatis</div>
-            <div className="text-xs text-black/45">Dihitung dari subtotal saat pembayaran</div>
+            <div className="text-sm font-bold">{t('PPN / Pajak Otomatis')}</div>
+            <div className="text-xs text-black/45">{t('Dihitung dari subtotal saat pembayaran')}</div>
           </div>
           <button
             role="switch"
@@ -443,7 +463,7 @@ export default function AturPage() {
 
         {pengaturan.ppnAktif && (
           <div className="mt-4">
-            <span className="label">Besaran PPN</span>
+            <span className="label">{t('Besaran PPN')}</span>
             <div className="relative">
               <input
                 type="number"

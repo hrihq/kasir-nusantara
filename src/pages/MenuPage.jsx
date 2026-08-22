@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useStore } from '../context/StoreContext.jsx'
 import { rupiah, buatId } from '../lib/format.js'
 import { bacaGambarKecil } from '../lib/gambar.js'
+import { t } from '../lib/bahasa.js'
 import PageHeader from '../components/PageHeader.jsx'
 import Ikon from '../components/Ikon.jsx'
 import ProdukAvatar from '../components/ProdukAvatar.jsx'
@@ -108,7 +109,7 @@ export default function MenuPage() {
   }
 
   const hapus = (p) => {
-    if (!confirm(`Hapus "${p.nama}" dari menu?`)) return
+    if (!confirm(`${t('Hapus')} "${p.nama}"?`)) return
     setProduk((ps) => ps.filter((x) => x.id !== p.id))
     setKeranjang((k) => k.filter((x) => x.id !== p.id))
   }
@@ -116,12 +117,12 @@ export default function MenuPage() {
   return (
     <div className="pb-32">
       <PageHeader
-        judul="Kelola Menu"
-        sub={`${produk.length} menu tersedia`}
+        judul={t('Kelola Menu')}
+        sub={`${produk.length} ${t('menu tersedia')}`}
         kanan={
           <button onClick={() => denganPin(bukaTambah)} className="tombol--utama mt-1 !px-3.5 !py-2.5 text-sm">
             <Ikon nama="plus" className="h-4 w-4" />
-            Tambah
+            {t('Tambah')}
           </button>
         }
       />
@@ -141,14 +142,14 @@ export default function MenuPage() {
                   <button
                     onClick={() => denganPin(() => bukaEdit(p))}
                     className="rounded-full p-2 text-black/45 transition duration-200 hover:bg-krem-tua"
-                    aria-label={`Edit ${p.nama}`}
+                    aria-label={`${t('Edit')} ${p.nama}`}
                   >
                     <Ikon nama="edit" className="h-[18px] w-[18px]" />
                   </button>
                   <button
                     onClick={() => denganPin(() => hapus(p))}
                     className="rounded-full p-2 text-red-400 transition duration-200 hover:bg-red-50"
-                    aria-label={`Hapus ${p.nama}`}
+                    aria-label={`${t('Hapus')} ${p.nama}`}
                   >
                     <Ikon nama="hapus" className="h-[18px] w-[18px]" />
                   </button>
@@ -160,15 +161,15 @@ export default function MenuPage() {
         {produk.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-16 text-black/35">
             <Ikon nama="kotak" className="h-8 w-8" />
-            <p className="text-sm">Belum ada menu. Ketuk “Tambah” untuk membuat menu pertama.</p>
+            <p className="text-sm">{t('Belum ada menu. Ketuk “Tambah” untuk membuat menu pertama.')}</p>
           </div>
         )}
       </div>
 
-      <Modal open={formBuka} onClose={() => setFormBuka(false)} judul={sedangEdit ? 'Edit Menu' : 'Tambah Menu'}>
+      <Modal open={formBuka} onClose={() => setFormBuka(false)} judul={sedangEdit ? t('Edit Menu') : t('Tambah Menu')}>
         <div className="space-y-4">
           <div>
-            <span className="label">Foto Menu</span>
+            <span className="label">{t('Foto Menu')}</span>
             <div className="flex items-center gap-3">
               <span className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-krem-tua text-black/30">
                 {form.gambar ? (
@@ -179,7 +180,7 @@ export default function MenuPage() {
               </span>
               <div className="space-y-1">
                 <label className="tombol--hantu cursor-pointer !px-3 !py-2 text-xs">
-                  {form.gambar ? 'Ganti Foto' : 'Unggah Foto'}
+                  {form.gambar ? t('Ganti Foto') : t('Unggah Foto')}
                   <input type="file" accept="image/*" className="hidden" onChange={unggahFoto} />
                 </label>
                 {form.gambar && (
@@ -188,28 +189,28 @@ export default function MenuPage() {
                     onClick={() => setForm((f) => ({ ...f, gambar: null }))}
                     className="block text-xs text-red-500 underline underline-offset-2"
                   >
-                    Hapus foto
+                    {t('Hapus foto')}
                   </button>
                 )}
                 <p className="text-[11px] leading-snug text-black/35">
-                  JPG/PNG — otomatis dikompres agar hemat penyimpanan.
+                  {t('JPG/PNG — otomatis dikompres agar hemat penyimpanan.')}
                 </p>
               </div>
             </div>
           </div>
 
           <div>
-            <span className="label">Nama Menu</span>
+            <span className="label">{t('Nama Menu')}</span>
             <input
               className="input"
               value={form.nama}
               onChange={(e) => setForm((f) => ({ ...f, nama: e.target.value }))}
-              placeholder="cth. Ayam Bakar Madu"
+              placeholder={t('cth. Ayam Bakar Madu')}
             />
           </div>
 
           <div>
-            <span className="label">Harga (Rp)</span>
+            <span className="label">{t('Harga (Rp)')}</span>
             <input
               className="input"
               type="number"
@@ -222,40 +223,40 @@ export default function MenuPage() {
           </div>
 
           <div>
-            <span className="label">Kategori</span>
+            <span className="label">{t('Kategori')}</span>
             <select
               className="input"
               value={form.kategori}
               onChange={(e) => setForm((f) => ({ ...f, kategori: e.target.value }))}
             >
               <option value="" disabled>
-                Pilih kategori…
+                {t('Pilih kategori…')}
               </option>
               {kategoriAda.map((k) => (
                 <option key={k} value={k}>
                   {k}
                 </option>
               ))}
-              <option value="__baru__">+ Kategori Baru</option>
+              <option value="__baru__">{t('+ Kategori Baru')}</option>
             </select>
             {form.kategori === '__baru__' && (
               <input
                 className="input mt-2"
                 value={form.baru}
                 onChange={(e) => setForm((f) => ({ ...f, baru: e.target.value }))}
-                placeholder="Nama kategori baru"
+                placeholder={t('Nama kategori baru')}
               />
             )}
           </div>
 
           <button onClick={simpan} className="tombol--utama w-full">
-            {sedangEdit ? 'Simpan Perubahan' : 'Tambah ke Menu'}
+            {sedangEdit ? t('Simpan Perubahan') : t('Tambah ke Menu')}
           </button>
         </div>
       </Modal>
 
-      <Modal open={pinBuka} onClose={batalPin} judul="Masukkan PIN">
-        <p className="text-sm text-black/55">Masukkan PIN pengelola menu untuk melanjutkan.</p>
+      <Modal open={pinBuka} onClose={batalPin} judul={t('Masukkan PIN')}>
+        <p className="text-sm text-black/55">{t('Masukkan PIN pengelola menu untuk melanjutkan.')}</p>
         <input
           type="password"
           inputMode="numeric"
@@ -275,15 +276,15 @@ export default function MenuPage() {
         />
         {pinSalah && (
           <p className="mt-2 text-center text-xs font-semibold text-red-500">
-            PIN salah. Coba lagi.
+            {t('PIN salah. Coba lagi.')}
           </p>
         )}
         <div className="mt-4 grid grid-cols-2 gap-2">
           <button onClick={batalPin} className="tombol--hantu w-full">
-            Batal
+            {t('Batal')}
           </button>
           <button onClick={konfirmasiPin} disabled={!pinMasuk} className="tombol--utama w-full">
-            Buka
+            {t('Buka')}
           </button>
         </div>
       </Modal>

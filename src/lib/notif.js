@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core'
 import { LocalNotifications } from '@capacitor/local-notifications'
+import { t } from './bahasa.js'
 
 const ID_KANAL = 'pengingat-kasir-v2'
 const ID_NOTIF = 1001
@@ -47,8 +48,8 @@ export async function jadwalkanPengingat(aktif, jam) {
         {
           id: ID_NOTIF,
           channelId: ID_KANAL,
-          title: 'Waktunya catat penjualan',
-          body: 'Rekap transaksi dan pengeluaran hari ini di Kasir Nusantara.',
+          title: t('Waktunya catat penjualan'),
+          body: t('Rekap transaksi dan pengeluaran hari ini di Kasir Nusantara.'),
           schedule: { on: { hour: j, minute: m }, allowWhileIdle: true },
           extra: { pengingat: true },
         },

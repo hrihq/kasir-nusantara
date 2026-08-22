@@ -3,6 +3,7 @@ import Chart from 'chart.js/auto'
 import { useStore } from '../context/StoreContext.jsx'
 import { rupiah, kunciHari, tanggalPendek, tanggalLengkap } from '../lib/format.js'
 import { pakaiTema } from '../lib/tema.js'
+import { t, lokale } from '../lib/bahasa.js'
 import { eksporExcel, namaBerkasLaporan } from '../lib/ekspor.js'
 import PageHeader from '../components/PageHeader.jsx'
 import Ikon from '../components/Ikon.jsx'
@@ -16,7 +17,7 @@ function rentang(n) {
     const d = new Date(kini.getFullYear(), kini.getMonth(), kini.getDate() - i)
     out.push({
       kunci: kunciHari(d),
-      label: d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }),
+      label: d.toLocaleDateString(lokale(), { day: 'numeric', month: 'short' }),
     })
   }
   return out
@@ -62,7 +63,7 @@ function GrafikGaris({ labels, data, gelap }) {
         labels,
         datasets: [
           {
-            label: 'Pemasukan',
+            label: t('Pemasukan'),
             data,
             borderColor: '#b23b22',
             backgroundColor: 'rgba(178,59,34,.10)',
@@ -96,14 +97,14 @@ function GrafikBatang({ labels, omzet, beban, gelap }) {
         labels,
         datasets: [
           {
-            label: 'Pemasukan',
+            label: t('Pemasukan'),
             data: omzet,
             backgroundColor: '#b23b22',
             borderRadius: 6,
             maxBarThickness: 16,
           },
           {
-            label: 'Pengeluaran',
+            label: t('Pengeluaran'),
             data: beban,
             backgroundColor: gelap ? '#a08672' : '#7a5c49',
             borderRadius: 6,
@@ -205,11 +206,11 @@ export default function LaporanPage() {
     ])
     setFJudul('')
     setFJumlah('')
-    setPesanBeban({ ok: true, teks: 'Pengeluaran tersimpan.' })
+    setPesanBeban({ ok: true, teks: t('Pengeluaran tersimpan.') })
   }
 
   const hapusBeban = (e) => {
-    if (!confirm(`Hapus pengeluaran "${e.judul}"?`)) return
+    if (!confirm(`${t('Hapus')} "${e.judul}"?`)) return
     setPengeluaran((p) => p.filter((x) => x.id !== e.id))
   }
 
@@ -221,14 +222,14 @@ export default function LaporanPage() {
         hari,
         namaFile: namaBerkasLaporan(),
       })
-      setPesanExcel({ ok: true, teks: 'Laporan Excel tersimpan.' })
+      setPesanExcel({ ok: true, teks: t('Laporan Excel tersimpan.') })
     } catch {
-      setPesanExcel({ ok: false, teks: 'Gagal membuat laporan Excel.' })
+      setPesanExcel({ ok: false, teks: t('Gagal membuat laporan Excel.') })
     }
   }
   return (
     <div className="pb-32">
-      <PageHeader judul="Laporan" sub="Performa penjualan & arus kas" />
+      <PageHeader judul={t('Laporan')} sub={t('Performa penjualan & arus kas')} />
 
       {/* Pilihan periode */}
       <div className="flex items-center gap-2 px-5 pb-3">
@@ -238,7 +239,7 @@ export default function LaporanPage() {
             onClick={() => setPeriode(n)}
             className={`chip ${periode === n ? 'bg-merek text-white' : 'bg-white text-black/60 ring-1 ring-black/10'}`}
           >
-            {n} Hari Terakhir
+            {t('%s Hari Terakhir').replace('%s', n)}
           </button>
         ))}
         <button
@@ -253,11 +254,11 @@ export default function LaporanPage() {
 
       {/* Ringkasan */}
       <div className="grid grid-cols-2 gap-3 px-5 layar:grid-cols-4">
-        <KartuStat label={`Omzet ${periode} hari`} nilai={rupiah(omzet)} warna="text-merek" garis="bg-merek" />
-        <KartuStat label="Transaksi" nilai={`${jmlTrx} order`} garis="bg-amber-400" />
-        <KartuStat label="Pengeluaran" nilai={rupiah(beban)} garis="bg-[#7a5c49]" />
+        <KartuStat label={`${t('Omzet')} ${periode} ${t('hari')}`} nilai={rupiah(omzet)} warna="text-merek" garis="bg-merek" />
+        <KartuStat label={t('Transaksi')} nilai={`${jmlTrx} ${t('order')}`} garis="bg-amber-400" />
+        <KartuStat label={t('Pengeluaran')} nilai={rupiah(beban)} garis="bg-[#7a5c49]" />
         <KartuStat
-          label="Laba Bersih"
+          label={t('Laba Bersih')}
           nilai={rupiah(laba)}
           warna={laba >= 0 ? 'text-emerald-600' : 'text-red-500'}
           garis={laba >= 0 ? 'bg-emerald-500' : 'bg-red-400'}
@@ -267,7 +268,7 @@ export default function LaporanPage() {
       {/* Grafik garis */}
       <div className="kartu mx-5 mt-4">
         <div className="mb-2 flex items-baseline justify-between">
-          <h2 className="text-sm font-bold">Grafik Pemasukan</h2>
+          <h2 className="text-sm font-bold">{t('Grafik Pemasukan')}</h2>
           <span className="text-xs text-black/45">{rupiah(omzet)}</span>
         </div>
         <GrafikGaris labels={labelsPeriode} data={deretOmzet} gelap={gelap} />
@@ -275,7 +276,7 @@ export default function LaporanPage() {
 
       {/* Grafik batang */}
       <div className="kartu mx-5 mt-4">
-        <h2 className="mb-2 text-sm font-bold">Pemasukan vs Pengeluaran (7 Hari)</h2>
+        <h2 className="mb-2 text-sm font-bold">{t('Pemasukan vs Pengeluaran (7 Hari)')}</h2>
         <GrafikBatang
           labels={hari7.map((h) => h.label)}
           omzet={hari7.map((h) => omzetMap[h.kunci] || 0)}
@@ -286,13 +287,13 @@ export default function LaporanPage() {
 
       {/* Catat pengeluaran */}
       <div className="kartu mx-5 mt-4">
-        <h2 className="mb-3 text-sm font-bold">Catat Pengeluaran</h2>
+        <h2 className="mb-3 text-sm font-bold">{t('Catat Pengeluaran')}</h2>
         <div className="space-y-2.5">
           <input
             className="input"
             value={fJudul}
             onChange={(e) => setFJudul(e.target.value)}
-            placeholder="cth. Belanja bahan dapur"
+            placeholder={t('cth. Belanja bahan dapur')}
           />
           <div className="flex gap-2">
             <input
@@ -302,7 +303,7 @@ export default function LaporanPage() {
               min="0"
               value={fJumlah}
               onChange={(e) => setFJumlah(e.target.value)}
-              placeholder="Jumlah (Rp)"
+              placeholder={t('Jumlah (Rp)')}
             />
             <input
               className="input w-[38%]"
@@ -313,7 +314,7 @@ export default function LaporanPage() {
             />
           </div>
           <button onClick={simpanBeban} disabled={!fJudul.trim() || !(Number(fJumlah) > 0)} className="tombol--utama w-full !py-2.5 text-sm">
-            Simpan Pengeluaran
+            {t('Simpan Pengeluaran')}
           </button>
           <PesanPudar pesan={pesanBeban} onSelesai={() => setPesanBeban(null)} />
         </div>
@@ -333,7 +334,7 @@ export default function LaporanPage() {
                 <button
                   onClick={() => hapusBeban(e)}
                   className="rounded-full p-1.5 text-red-400 transition hover:bg-red-50"
-                  aria-label="Hapus pengeluaran"
+                  aria-label={t('Hapus pengeluaran')}
                 >
                   <Ikon nama="hapus" className="h-4 w-4" />
                 </button>
@@ -345,30 +346,30 @@ export default function LaporanPage() {
 
       {/* Riwayat transaksi */}
       <div className="kartu mx-5 mt-4">
-        <h2 className="mb-3 text-sm font-bold">Riwayat Transaksi</h2>
+        <h2 className="mb-3 text-sm font-bold">{t('Riwayat Transaksi')}</h2>
         {transaksi.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-10 text-black/35">
             <Ikon nama="keranjang" className="h-8 w-8" />
-            <p className="text-sm">Belum ada transaksi.</p>
+            <p className="text-sm">{t('Belum ada transaksi.')}</p>
           </div>
         ) : (
           <ul className="divide-y divide-dashed divide-black/10">
-            {transaksi.slice(0, 25).map((t) => (
-              <li key={t.id}>
+            {transaksi.slice(0, 25).map((trx) => (
+              <li key={trx.id}>
                 <button
-                  onClick={() => setPilih(t)}
+                  onClick={() => setPilih(trx)}
                   className="flex w-full items-center gap-3 py-2.5 text-left transition active:bg-krem-tua/60"
                 >
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-merek-lembut text-merek">
                     <Ikon nama="keranjang" className="h-4 w-4" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold">{t.no}</div>
+                    <div className="truncate text-sm font-semibold">{trx.no}</div>
                     <div className="text-xs text-black/45">
-                      {tanggalLengkap(t.tanggal)} · {t.metode}
+                      {tanggalLengkap(trx.tanggal)} · {t(trx.metode)}
                     </div>
                   </div>
-                  <div className="text-sm font-bold text-merek">{rupiah(t.total)}</div>
+                  <div className="text-sm font-bold text-merek">{rupiah(trx.total)}</div>
                 </button>
               </li>
             ))}
