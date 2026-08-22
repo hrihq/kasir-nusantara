@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Kasir Nusantara</string>
+    <string name="title_activity_main">Kasir Nusantara</string>
+    <string name="package_name">com.kasirnusantara.app</string>
+    <string name="custom_url_scheme">com.kasirnusantara.app</string>
+</resources>

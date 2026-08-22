@@ -1,0 +1,17 @@
+{
+  "name": "Kasir Nusantara",
+  "short_name": "KasirNusa",
+  "description": "Aplikasi kasir warung: PPN otomatis, struk, menu, dan laporan.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f1e6",
+  "theme_color": "#b23b22",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
