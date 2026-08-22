@@ -50,11 +50,18 @@ export default function AturPage() {
   const saklarKunci = () => {
     setPesanPin(null)
     if (pengaturan.pinAktif) {
+      if (!pinTersimpan) {
+        ubah('pinAktif', false)
+        setGantiBuka(false)
+        bersihkanFormPin()
+        setPesanPin({ ok: true, teks: 'Kunci menu dimatikan.' })
+        return
+      }
       setPinMati('')
       setMatriMati(true)
     } else {
       ubah('pinAktif', true)
-      setGantiBuka(true)
+      setGantiBuka(!pinTersimpan)
     }
   }
 

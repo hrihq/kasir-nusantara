@@ -22,7 +22,7 @@ export default function MenuPage() {
   const pinBenar = pengaturan.pinKode || ''
 
   const denganPin = (aksi) => {
-    if (pengaturan.pinAktif) {
+    if (pengaturan.pinAktif && pengaturan.pinKode) {
       setAksiTunda(() => aksi)
       setPinMasuk('')
       setPinSalah(false)
