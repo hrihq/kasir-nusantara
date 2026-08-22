@@ -4,7 +4,7 @@ import { cekPembaruan, VERSI } from '../lib/update.js'
 import { eksporCadangan, imporCadangan } from '../lib/cadangan.js'
 import { rupiah } from '../lib/format.js'
 import { bacaGambarKecil } from '../lib/gambar.js'
-import { pakaiTema } from '../lib/tema.js'
+import { pakaiTema, LABEL_TEMA } from '../lib/tema.js'
 import { izinNotifikasi, jadwalkanPengingat } from '../lib/notif.js'
 import PageHeader from '../components/PageHeader.jsx'
 import PesanPudar from '../components/PesanPudar.jsx'
@@ -14,7 +14,7 @@ import { Modal } from '../components/Modal.jsx'
 export default function AturPage() {
   const { pengaturan, setPengaturan, transaksi, setTransaksi, pengeluaran, setPengeluaran } =
     useStore()
-  const [gelap, gantiTema] = pakaiTema()
+  const [gelap, gantiTema, mode] = pakaiTema()
   const [pinLama, setPinLama] = useState('')
   const [pinBaru, setPinBaru] = useState('')
   const [pinUlang, setPinUlang] = useState('')
@@ -35,8 +35,8 @@ export default function AturPage() {
     try {
       await eksporCadangan()
       setPesanCadangan({ ok: true, teks: 'Cadangan siap — kirim ke WhatsApp/Drive untuk disimpan.' })
-    } catch {
-      setPesanCadangan({ ok: false, teks: 'Gagal membuat cadangan. Coba lagi.' })
+    } catch (g) {
+      setPesanCadangan({ ok: false, teks: `Gagal membuat cadangan: ${g?.message || 'coba lagi'}` })
     }
     setCadanganJalan(false)
   }
@@ -190,23 +190,16 @@ export default function AturPage() {
       {/* Tampilan */}
       <div className="kartu mx-5 mt-4 flex items-center justify-between gap-3">
         <div>
-          <div className="text-sm font-bold">Mode Gelap</div>
-          <div className="text-xs text-black/45">Nyaman dipakai di malam hari</div>
+          <div className="text-sm font-bold">Tema</div>
+          <div className="text-xs text-black/45">
+            {mode === 'sistem' ? 'Mengikuti tampilan HP-mu' : mode === 'gelap' ? 'Selalu gelap' : 'Selalu terang'}
+          </div>
         </div>
         <button
-          role="switch"
-          aria-checked={gelap}
-          aria-label="Mode gelap"
           onClick={gantiTema}
-          className={`relative h-7 w-12 shrink-0 rounded-full transition duration-200 ${
-            gelap ? 'bg-merek' : 'bg-black/20'
-          }`}
+          className="tombol--hantu shrink-0 !px-4 !py-2 text-xs"
         >
-          <span
-            className={`absolute top-1 left-1 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ease-out ${
-              gelap ? 'translate-x-5' : 'translate-x-0'
-            }`}
-          />
+          {LABEL_TEMA[mode]}
         </button>
       </div>
 

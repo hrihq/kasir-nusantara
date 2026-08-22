@@ -8,10 +8,9 @@
     <meta name="theme-color" content="#b23b22" />
     <script>
       try {
-        var t = localStorage.getItem('kasir_tema')
-        if (t === 'gelap' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-          document.documentElement.classList.add('dark')
-        }
+        var m = localStorage.getItem('kasir_tema') || 'sistem'
+        var g = m === 'gelap' || (m === 'sistem' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.classList.toggle('dark', g)
       } catch (e) {}
     </script>
     <link rel="manifest" href="/manifest.webmanifest" />

@@ -60,7 +60,10 @@ const blobKeBase64 = (blob) =>
     r.readAsDataURL(blob)
   })
 
-export async function unduhApk(url, onProgres) {
+// Cermin untuk mengatasi ISP yang memblokir/membatasi CDN GitHub
+const CERMIN = ['https://gh-proxy.com/', 'https://ghp.ci/']
+
+async function unduhSatu(url, onProgres) {
   if (Capacitor.isNativePlatform()) {
     const langganan = await PembukaApk.addListener('progres', (d) => {
       onProgres?.(d.total ? d.terunduh / d.total : 0, d.terunduh)
@@ -90,6 +93,20 @@ export async function unduhApk(url, onProgres) {
     data: await blobKeBase64(new Blob(bagian, { type: 'application/vnd.android.package-archive' })),
     directory: Directory.Cache,
   })
+}
+
+export async function unduhApk(url, onProgres) {
+  const daftarUrl = [url, ...CERMIN.map((m) => m + url)]
+  let galatTerakhir
+  for (const u of daftarUrl) {
+    try {
+      await unduhSatu(u, onProgres)
+      return
+    } catch (e) {
+      galatTerakhir = e
+    }
+  }
+  throw galatTerakhir
 }
 
 export async function pasangApk() {

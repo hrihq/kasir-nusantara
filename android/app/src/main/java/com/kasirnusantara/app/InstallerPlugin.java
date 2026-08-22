@@ -1,7 +1,10 @@
 package com.kasirnusantara.app;
 
+import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
+import android.view.View;
+import android.webkit.WebView;
 import androidx.core.content.FileProvider;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -36,11 +39,12 @@ public class InstallerPlugin extends Plugin {
             );
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(uri, "application/vnd.android.package-archive");
+            intent.setClipData(ClipData.newRawUri("apk", uri));
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
             getContext().startActivity(intent);
             call.resolve();
         } catch (Exception e) {
-            call.reject(e.getMessage());
+            call.reject(e.toString());
         }
     }
 
@@ -62,11 +66,14 @@ public class InstallerPlugin extends Plugin {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType(jenis);
             intent.putExtra(Intent.EXTRA_STREAM, uri);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            getContext().startActivity(Intent.createChooser(intent, "Bagikan cadangan"));
+            intent.setClipData(ClipData.newRawUri("cadangan", uri));
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+            Intent chooser = Intent.createChooser(intent, "Bagikan cadangan");
+            chooser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(chooser);
             call.resolve();
         } catch (Exception e) {
-            call.reject(e.getMessage());
+            call.reject(e.toString());
         }
     }
 
@@ -113,11 +120,18 @@ public class InstallerPlugin extends Plugin {
                     }
                     call.resolve();
                 } catch (Exception e) {
-                    call.reject(e.getMessage() == null ? "Unduhan gagal" : e.getMessage());
+                    call.reject(e.toString());
                 } finally {
                     if (conn != null) conn.disconnect();
                 }
             }
         });
+    }
+
+    @Override
+    public void load() {
+        if (getBridge() != null && getBridge().getWebView() != null) {
+            getBridge().getWebView().setOverScrollMode(View.OVER_SCROLL_NEVER);
+        }
     }
 }

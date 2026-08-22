@@ -130,7 +130,7 @@ export default function MenuPage() {
         {grup.map(([kat, daftar]) => (
           <section key={kat}>
             <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-black/40">{kat}</h2>
-            <ul className="grid gap-2 landscape:grid-cols-2">
+            <ul className="grid gap-2 lg:grid-cols-2">
               {daftar.map((p) => (
                 <li key={p.id} className="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-kartu">
                   <ProdukAvatar produk={p} className="h-11 w-11 shrink-0 rounded-xl text-sm" />

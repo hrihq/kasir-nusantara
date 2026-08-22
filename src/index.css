@@ -64,7 +64,7 @@
 @layer components {
 .panggung {
   @apply relative mx-auto min-h-screen w-full max-w-[430px] bg-krem shadow-lembar;
-  @apply landscape:max-w-none landscape:shadow-none;
+  @apply lg:max-w-none lg:shadow-none;
 }
   .kartu {
     @apply rounded-2xl bg-white p-4 shadow-kartu;
@@ -198,6 +198,7 @@
 .dark .bg-merek-lembut { background-color: rgba(178, 59, 34, 0.18); }
 .dark .text-tinta { color: #f2ece3; }
 .dark .text-black\/35 { color: rgba(244, 238, 230, 0.38); }
+.dark .text-black\/30 { color: rgba(244, 238, 230, 0.32); }
 .dark .text-black\/40 { color: rgba(244, 238, 230, 0.42); }
 .dark .text-black\/45 { color: rgba(244, 238, 230, 0.48); }
 .dark .text-black\/50 { color: rgba(244, 238, 230, 0.52); }

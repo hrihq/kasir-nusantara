@@ -315,7 +315,7 @@ export default function KasirPage() {
       </div>
 
       {/* Grid menu */}
-      <div className="grid grid-cols-2 gap-3 px-5 pt-3 landscape:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 px-5 pt-3 lg:grid-cols-4">
         {hasil.map((p) => (
           <button
             key={p.id}

@@ -23,6 +23,7 @@ export default function PembaruanModal({ info, tutup }) {
   const [progres, setProgres] = useState(0)
   const [terunduh, setTerunduh] = useState(0)
   const [galat, setGalat] = useState(false)
+  const [detailGalat, setDetailGalat] = useState('')
 
   const mulaiUnduh = async () => {
     if (!Capacitor.isNativePlatform() && !window.__paksaNative) {
@@ -39,8 +40,9 @@ export default function PembaruanModal({ info, tutup }) {
         setTerunduh(b)
       })
       setFase('siap-pasang')
-    } catch {
+    } catch (e) {
       setFase('gagal')
+      setDetailGalat(e?.message || '')
       setGalat(true)
     }
   }
@@ -48,8 +50,9 @@ export default function PembaruanModal({ info, tutup }) {
   const pasang = async () => {
     try {
       await pasangApk()
-    } catch {
+    } catch (e) {
       setFase('gagal')
+      setDetailGalat(e?.message || '')
       setGalat(true)
     }
   }
@@ -105,9 +108,14 @@ export default function PembaruanModal({ info, tutup }) {
           )}
 
           {galat && (
-            <p className="text-center text-xs font-semibold text-red-600">
-              Unduhan gagal. Periksa koneksi internet lalu coba lagi.
-            </p>
+            <>
+              <p className="text-center text-xs font-semibold text-red-600">
+                Unduhan gagal setelah mencoba beberapa jalur.
+              </p>
+              {detailGalat && (
+                <p className="text-center text-[10px] text-black/40">{detailGalat}</p>
+              )}
+            </>
           )}
 
           {!info.urlUnduh.includes('.apk') && (
