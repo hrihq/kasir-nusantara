@@ -23,10 +23,22 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        tetap {
+            storeFile file('kasir.keystore')
+            storePassword 'kasirnusantara'
+            keyAlias 'kasirnusantara'
+            keyPassword 'kasirnusantara'
+        }
+    }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.tetap
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.tetap
         }
     }
 }

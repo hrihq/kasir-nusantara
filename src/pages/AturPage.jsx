@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useStore } from '../context/StoreContext.jsx'
 import { cekPembaruan, VERSI } from '../lib/update.js'
+import { eksporCadangan, imporCadangan } from '../lib/cadangan.js'
 import { rupiah } from '../lib/format.js'
 import { bacaGambarKecil } from '../lib/gambar.js'
 import { pakaiTema } from '../lib/tema.js'
@@ -24,6 +25,44 @@ export default function AturPage() {
   const [infoAtur, setInfoAtur] = useState(null)
   const [cekJalan, setCekJalan] = useState(false)
   const [pesanCek, setPesanCek] = useState(null)
+  const [pesanCadangan, setPesanCadangan] = useState(null)
+  const [cadanganJalan, setCadanganJalan] = useState(false)
+
+  const jalankanEkspor = async () => {
+    if (cadanganJalan) return
+    setCadanganJalan(true)
+    setPesanCadangan(null)
+    try {
+      await eksporCadangan()
+      setPesanCadangan({ ok: true, teks: 'Cadangan siap — kirim ke WhatsApp/Drive untuk disimpan.' })
+    } catch {
+      setPesanCadangan({ ok: false, teks: 'Gagal membuat cadangan. Coba lagi.' })
+    }
+    setCadanganJalan(false)
+  }
+
+  const jalankanImpor = async (e) => {
+    const berkas = e.target.files?.[0]
+    e.target.value = ''
+    if (!berkas) return
+    setCadanganJalan(true)
+    setPesanCadangan(null)
+    try {
+      await imporCadangan(berkas)
+      location.reload()
+    } catch (g) {
+      setCadanganJalan(false)
+      setPesanCadangan({ ok: false, teks: g.message || 'Gagal memulihkan cadangan.' })
+    }
+  }
+
+  const pilihBerkasCadangan = () => {
+    const inp = document.createElement('input')
+    inp.type = 'file'
+    inp.accept = '.json,application/json'
+    inp.onchange = jalankanImpor
+    inp.click()
+  }
 
   const jalankanCek = async () => {
     if (cekJalan) return
@@ -458,6 +497,31 @@ export default function AturPage() {
       </div>
 
       {/* Zona data */}
+      <div className="kartu mx-5 mt-4 space-y-2.5">
+        <h2 className="text-sm font-bold">Cadangkan &amp; Pulihkan</h2>
+        <p className="text-xs text-black/45">
+          Simpan satu berkas cadangan berisi produk, transaksi, dan pengaturan. Wajib dilakukan
+          sebelum ganti atau hapus aplikasi.
+        </p>
+        <button
+          onClick={jalankanEkspor}
+          disabled={cadanganJalan}
+          className="tombol w-full !py-2.5 text-sm ring-1 ring-black/10 hover:bg-krem-tua"
+        >
+          {cadanganJalan ? 'Memproses…' : 'Ekspor Cadangan'}
+        </button>
+        <button
+          onClick={pilihBerkasCadangan}
+          disabled={cadanganJalan}
+          className="tombol w-full bg-white !py-2.5 text-sm ring-1 ring-black/10 hover:bg-krem-tua"
+        >
+          Pulihkan dari Cadangan
+        </button>
+        {pesanCadangan && (
+          <PesanPudar pesan={pesanCadangan} onSelesai={() => setPesanCadangan(null)} />
+        )}
+      </div>
+
       <div className="kartu mx-5 mt-4 space-y-2.5">
         <h2 className="text-sm font-bold">Kelola Data</h2>
         <button

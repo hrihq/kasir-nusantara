@@ -45,6 +45,32 @@ public class InstallerPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void bagikan(PluginCall call) {
+        String file = call.getString("file", "cadangan-kasir.json");
+        String jenis = call.getString("jenis", "application/json");
+        try {
+            File berkas = new File(getContext().getCacheDir(), file);
+            if (!berkas.exists()) {
+                call.reject("Berkas tidak ditemukan");
+                return;
+            }
+            Uri uri = FileProvider.getUriForFile(
+                getContext(),
+                getContext().getPackageName() + ".fileprovider",
+                berkas
+            );
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType(jenis);
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            getContext().startActivity(Intent.createChooser(intent, "Bagikan cadangan"));
+            call.resolve();
+        } catch (Exception e) {
+            call.reject(e.getMessage());
+        }
+    }
+
+    @PluginMethod
     public void unduh(PluginCall call) {
         final String urlStr = call.getString("url");
         final String file = call.getString("file", "KasirNusantara-pembaruan.apk");

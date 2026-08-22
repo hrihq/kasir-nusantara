@@ -28,6 +28,7 @@ export default function TabBar({ tab, setTab }) {
     }
     ukur()
     window.addEventListener('resize', ukur)
+    document.fonts?.ready?.then(ukur)
     return () => window.removeEventListener('resize', ukur)
   }, [target])
 
@@ -85,7 +86,7 @@ export default function TabBar({ tab, setTab }) {
   }
 
   return (
-    <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))] landscape:inset-x-auto landscape:right-[max(1rem,env(safe-area-inset-right))] landscape:bottom-auto landscape:top-1/2 landscape:-translate-y-1/2 landscape:pb-0">
+    <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))] lg:inset-x-auto lg:right-[max(1rem,env(safe-area-inset-right))] lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 lg:pb-0">
       <div
         ref={wadahRef}
         onTouchStart={mulai}
@@ -95,7 +96,7 @@ export default function TabBar({ tab, setTab }) {
           sentuh.current = null
           setSorot(null)
         }}
-        className="pointer-events-auto relative flex w-[calc(100vw-2.5rem)] max-w-[380px] items-center gap-1 rounded-full p-1.5 shadow-kartu ring-1 ring-black/10 backdrop-blur-xl landscape:w-auto landscape:flex-col landscape:rounded-[22px]"
+        className="pointer-events-auto relative flex w-[calc(100vw-2.5rem)] max-w-[380px] items-center gap-1 rounded-full p-1.5 shadow-kartu ring-1 ring-black/10 backdrop-blur-xl lg:w-auto lg:flex-col lg:rounded-[22px]"
         style={{ backgroundColor: 'var(--permukaan)', ['--tw-ring-color']: 'var(--garis)' }}
       >
         {kotak && (
