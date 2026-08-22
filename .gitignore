@@ -21,3 +21,12 @@ android/app/src/main/assets/public/
 dev-server.log
 
 SPESIFIKASI-*.md
+
+# Berkas bawaan AI — jangan di-push
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+.cursorrules
+.github/copilot-instructions.md
+opencode.json
+opencode.jsonc

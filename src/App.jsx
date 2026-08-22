@@ -13,6 +13,12 @@ import AturPage from './pages/AturPage.jsx'
 
 const URUTAN_TAB = ['kasir', 'menu', 'laporan', 'atur']
 
+// Dicek di level modul — SEBELUM React menulis data awal ke localStorage.
+// Ada data = aplikasi lama terpasang, jadi pemasangan baru terhitung sebagai pembaruan.
+const ADA_DATA_LAMA = ['kasir_produk', 'kasir_transaksi', 'kasir_nomor_urut'].some(
+  (k) => localStorage.getItem(k) !== null,
+)
+
 const ubahTunda = (setPengaturan) =>
   setPengaturan((s) => ({ ...s, tundaUpdateSampai: besok() }))
 
@@ -60,11 +66,9 @@ function Halaman() {
     bersihkanSisa()
     // Popup catatan rilis: hanya sekali, tepat setelah aplikasi diperbarui
     const versiTercatat = localStorage.getItem('kasir_versi_terakhir')
-    if (versiTercatat && versiTercatat !== VERSI) {
+    if (versiTercatat !== VERSI) {
       localStorage.setItem('kasir_versi_terakhir', VERSI)
-      setRilisBaru(true)
-    } else if (!versiTercatat) {
-      localStorage.setItem('kasir_versi_terakhir', VERSI)
+      if (versiTercatat || ADA_DATA_LAMA) setRilisBaru(true)
     }
     const t = setTimeout(() => {
       cekPembaruan().then((info) => {
