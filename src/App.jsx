@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import { jadwalkanPengingat } from './lib/notif.js'
-import { cekPembaruan, sudahDitunda, besok } from './lib/update.js'
+import { cekPembaruan, sudahDitunda, besok, bersihkanSisa } from './lib/update.js'
 import PembaruanModal from './components/PembaruanModal.jsx'
 import TabBar from './components/TabBar.jsx'
 import KasirPage from './pages/KasirPage.jsx'
@@ -53,6 +53,7 @@ function Halaman() {
   }, [pengaturan.pengingatAktif, pengaturan.pengingatJam])
 
   useEffect(() => {
+    bersihkanSisa()
     const t = setTimeout(() => {
       cekPembaruan().then((info) => {
         if (!info || sudahDitunda(pengaturanRef.current)) return

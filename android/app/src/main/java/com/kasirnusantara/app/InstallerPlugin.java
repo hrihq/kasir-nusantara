@@ -128,6 +128,29 @@ public class InstallerPlugin extends Plugin {
         });
     }
 
+    @PluginMethod
+    public void bersihkan(PluginCall call) {
+        try {
+            int terhapus = 0;
+            long batasJson = System.currentTimeMillis() - 24L * 60 * 60 * 1000;
+            File[] daftar = getContext().getCacheDir().listFiles();
+            if (daftar != null) {
+                for (File f : daftar) {
+                    String nama = f.getName().toLowerCase();
+                    boolean apkLama = nama.endsWith(".apk");
+                    boolean cadanganBasi =
+                        nama.startsWith("cadangan-kasir") && f.lastModified() < batasJson;
+                    if ((apkLama || cadanganBasi) && f.delete()) terhapus++;
+                }
+            }
+            JSObject hasil = new JSObject();
+            hasil.put("terhapus", terhapus);
+            call.resolve(hasil);
+        } catch (Exception e) {
+            call.reject(e.toString());
+        }
+    }
+
     @Override
     public void load() {
         if (getBridge() != null && getBridge().getWebView() != null) {

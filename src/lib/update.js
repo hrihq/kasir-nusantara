@@ -113,3 +113,14 @@ export async function pasangApk() {
   if (!Capacitor.isNativePlatform()) throw new Error('Hanya di perangkat Android')
   await PembukaApk.install({ file: NAMA_FILE_APK })
 }
+
+// Hapus sisa berkas pembaruan/cadangan lama agar memori tidak penuh
+export async function bersihkanSisa() {
+  if (!Capacitor.isNativePlatform()) return 0
+  try {
+    const r = await PembukaApk.bersihkan()
+    return r?.terhapus || 0
+  } catch {
+    return 0
+  }
+}

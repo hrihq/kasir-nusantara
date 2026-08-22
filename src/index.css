@@ -36,6 +36,7 @@
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
     touch-action: manipulation;
+    overflow-x: hidden;
   }
   body {
     @apply font-badan antialiased;
@@ -48,7 +49,12 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
-    overscroll-behavior-y: none;
+    overscroll-behavior: none;
+    overflow-x: hidden;
+    width: 100%;
+  }
+  #root {
+    overflow-x: clip;
   }
   input,
   textarea,
@@ -65,6 +71,14 @@
 .panggung {
   @apply relative mx-auto min-h-screen w-full max-w-[430px] bg-krem shadow-lembar;
   @apply lg:max-w-none lg:shadow-none;
+}
+
+/* HP/tablet diputar (landscape asli, keyboard tertutup): layar penuh */
+@media (orientation: landscape) and (min-height: 500px) and (max-width: 1023.98px) {
+  .panggung {
+    max-width: none;
+    box-shadow: none;
+  }
 }
   .kartu {
     @apply rounded-2xl bg-white p-4 shadow-kartu;
