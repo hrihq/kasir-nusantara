@@ -102,7 +102,7 @@ export default function TabBar({ tab, setTab }) {
         {kotak && (
           <span
             aria-hidden="true"
-            className="absolute left-0 top-0 rounded-full bg-merek shadow-md transition-[transform,width,height] duration-300 ease-out will-change-transform"
+            className="pil-kaca absolute left-0 top-0 rounded-full shadow-md transition-[transform,width,height] duration-300 ease-out will-change-transform"
             style={{
               width: kotak.width,
               height: kotak.height,

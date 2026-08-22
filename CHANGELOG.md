@@ -4,6 +4,14 @@ Semua perubahan penting aplikasi Kasir Nusantara dicatat di sini.
 Saat rilis, bagian versi teratas otomatis dipakai sebagai catatan rilis di GitHub
 dan ditampilkan sebagai changelog di dalam aplikasi.
 
+## 1.0.17
+
+- Motif batik kini menyatu penuh dengan latar (tidak lagi tampak kotak-kotak)
+- Pil tab aktif jadi liquid glass — navbar lebih transparan dan lentur
+- Mode Lite langsung aktif tanpa perlu menutup aplikasi
+- Notifikasi pembaruan tampil sebagai banner heads-up + ketuk untuk langsung buka pembaruan
+- Pemeriksaan pembaruan makin sering: tiap 10 menit selama aplikasi terbuka & tiap kembali ke layar
+
 ## 1.0.16
 
 - Changelog kini tampil saat pembaruan tersedia & setelah aplikasi diperbarui

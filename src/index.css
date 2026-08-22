@@ -49,7 +49,8 @@
   position: relative;
   isolation: isolate;
 }
-/* Motif parang asli dari internet (CC0) + motif kawung sebagai cadangan offline */
+/* Motif parang asli dari internet (CC0) + motif kawung sebagai cadangan offline.
+   Blend multiply membuat latar putih gambar menyatu dengan kertas — tidak tampak kotak. */
 [data-tema='batik'] .panggung::before {
   content: '';
   position: absolute;
@@ -58,11 +59,15 @@
   pointer-events: none;
   background-image: url('https://freesvg.org/img/Batik-Parang-Rusak-Seamless-Pattern.png'),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3Cg fill='%238a5a2b' fill-opacity='0.055'%3E%3Cellipse cx='26' cy='13' rx='8' ry='12'/%3E%3Cellipse cx='26' cy='39' rx='8' ry='12'/%3E%3Cellipse cx='13' cy='26' rx='12' ry='8'/%3E%3Cellipse cx='39' cy='26' rx='12' ry='8'/%3E%3Ccircle cx='26' cy='26' r='2.6'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 190px auto, 52px 52px;
-  opacity: 0.075;
+  background-size: 260px auto, 52px 52px;
+  background-repeat: repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.16;
 }
 .dark[data-tema='batik'] .panggung::before {
-  opacity: 0.11;
+  mix-blend-mode: screen;
+  filter: invert(1);
+  opacity: 0.13;
 }
 /* Laut — biru laut dalam */
 [data-tema='laut'] {
@@ -166,19 +171,48 @@
   isolation: isolate;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.34),
-    rgba(255, 255, 255, 0.16) 45%,
-    rgba(255, 255, 255, 0.28)
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.08) 45%,
+    rgba(255, 255, 255, 0.16)
   );
-  -webkit-backdrop-filter: blur(30px) saturate(200%);
-  backdrop-filter: blur(30px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  -webkit-backdrop-filter: blur(32px) saturate(210%);
+  backdrop-filter: blur(32px) saturate(210%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   box-shadow:
-    inset 0 1px 1.5px rgba(255, 255, 255, 0.9),
-    inset 0 -1px 2px rgba(36, 21, 7, 0.06),
-    inset 0 0 22px rgba(255, 255, 255, 0.14),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.7),
+    inset 0 -1px 2px rgba(36, 21, 7, 0.05),
     0 18px 44px -12px rgba(36, 21, 7, 0.38),
     0 4px 14px -6px rgba(36, 21, 7, 0.2);
+}
+/* Pil tab aktif: liquid glass bernuansa merek */
+.pil-kaca {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--merek-rgb) / 0.95),
+    rgb(var(--merek-gelap-rgb) / 0.82)
+  );
+  -webkit-backdrop-filter: blur(16px) saturate(190%);
+  backdrop-filter: blur(16px) saturate(190%);
+  box-shadow:
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.5),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.22),
+    inset 0 0 14px rgb(255 255 255 / 0.12),
+    0 8px 22px -6px rgb(var(--merek-gelap-rgb) / 0.55);
+}
+.pil-kaca::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0.42) 0%,
+    rgba(255, 255, 255, 0.06) 30%,
+    transparent 48%,
+    rgba(255, 255, 255, 0.1) 78%,
+    rgba(255, 255, 255, 0.3) 100%
+  );
 }
 /* kilau cair: pantulan diagonal + tepi atas menyala */
 .bilah-kaca::before {

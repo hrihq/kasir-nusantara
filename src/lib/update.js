@@ -197,7 +197,26 @@ export async function bersihkanSisa() {
   }
 }
 
-// Notifikasi lokal: ada pembaruan tersedia
+// Notifikasi lokal: ada pembaruan tersedia — kanal prioritas tinggi agar
+// tampil sebagai banner heads-up di atas aplikasi, bukan cuma di statusbar.
+const ID_KANAL_UPDATE = 'pembaruan-kasir'
+
+async function siapkanKanalUpdate() {
+  try {
+    await LocalNotifications.createChannel({
+      id: ID_KANAL_UPDATE,
+      name: t('Pembaruan Aplikasi'),
+      description: t('Notifikasi pembaruan aplikasi'),
+      importance: 'HIGH',
+      visibility: 'PUBLIC',
+      vibration: true,
+      sound: 'kasir_lonceng.mp3',
+    })
+  } catch {
+    /* kanal mungkin sudah ada */
+  }
+}
+
 export async function kirimNotif(info) {
   try {
     if (!Capacitor.isNativePlatform()) return
@@ -208,11 +227,13 @@ export async function kirimNotif(info) {
       status = minta.display
     }
     if (status !== 'granted') return
+    await siapkanKanalUpdate()
     await LocalNotifications.schedule({
       notifications: [
         {
           id: 4201,
-          title: `${t('Pembaruan v')}${info.versi} ${t('tersedia')}`,
+          channelId: ID_KANAL_UPDATE,
+          title: `${t('Pembaruan v')}${info.versi} ${t('tersedia')} 🎉`,
           body: t('Buka aplikasi untuk mengunduh versi terbaru.'),
           schedule: { at: new Date(Date.now() + 400) },
         },

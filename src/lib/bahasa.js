@@ -264,6 +264,7 @@ const EN = {
   'Masukkan PIN untuk kembali ke mode lengkap.':
     'Enter your PIN to return to full mode.',
   'Cadangan tersimpan di folder Documents.': 'Backup saved to your Documents folder.',
+  'Notifikasi pembaruan aplikasi': 'App update notifications',
 
   // Struk
   'Struk Transaksi': 'Receipt',

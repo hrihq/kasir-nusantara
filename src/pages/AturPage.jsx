@@ -43,7 +43,11 @@ export default function AturPage() {
       setGantiBuka(true)
       return
     }
-    jalankanTransisi(() => ubah('modeLite', true))
+    jalankanTransisi(() => {
+      ubah('modeLite', true)
+      // Langsung pindah ke kasir — jangan sampai tertahan di halaman Pengaturan
+      window.dispatchEvent(new CustomEvent('kasir:buka-tab', { detail: 'kasir' }))
+    })
   }
   const [bahasaAktif, gantiBahasa] = pakaiBahasa()
   const [pinLama, setPinLama] = useState('')

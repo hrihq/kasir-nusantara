@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
+import { LocalNotifications } from '@capacitor/local-notifications'
 import { jadwalkanPengingat } from './lib/notif.js'
 import { cekPembaruan, sudahDitunda, besok, bersihkanSisa, kirimNotif, simpanCatatan, VERSI } from './lib/update.js'
 import { pakaiBahasa, t } from './lib/bahasa.js'
@@ -92,16 +93,42 @@ function Halaman() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Aplikasi sering tertahan di memori: cek ulang tiap kembali ke layar (maks 1x/jam)
+  // Aplikasi sering tertahan di memori: cek ulang tiap kembali ke layar (maks 1x/15 menit)
   useEffect(() => {
     const periksaLagi = () => {
       if (document.visibilityState !== 'visible') return
-      if (Date.now() - Number(localStorage.getItem('kasir_cek_terakhir') || 0) < 3600000) return
+      if (Date.now() - Number(localStorage.getItem('kasir_cek_terakhir') || 0) < 900000) return
       localStorage.setItem('kasir_cek_terakhir', String(Date.now()))
       cekPembaruan().then(prosesInfoRilis)
     }
     document.addEventListener('visibilitychange', periksaLagi)
     return () => document.removeEventListener('visibilitychange', periksaLagi)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Polling berkala selama aplikasi terbuka — notifikasi secepat mungkin tanpa server push
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (document.visibilityState !== 'visible') return
+      cekPembaruan().then(prosesInfoRilis)
+    }, 600000)
+    return () => clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Ketuk notifikasi → langsung buka modal pembaruan (lewati tundaan)
+  useEffect(() => {
+    let pegangan = null
+    LocalNotifications.addListener('localNotificationActionPerformed', () => {
+      cekPembaruan().then((info) => {
+        if (!info) return
+        simpanCatatan(info.versi, info.catatan)
+        setInfoUpdate(info)
+      })
+    }).then((h) => {
+      pegangan = h
+    })
+    return () => pegangan?.remove?.()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
