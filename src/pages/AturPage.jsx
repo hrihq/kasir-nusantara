@@ -9,6 +9,7 @@ import { t, pakaiBahasa } from '../lib/bahasa.js'
 import { izinNotifikasi, jadwalkanPengingat } from '../lib/notif.js'
 import PageHeader from '../components/PageHeader.jsx'
 import TransisiTema from '../components/TransisiTema.jsx'
+import Ikon from '../components/Ikon.jsx'
 import PesanPudar from '../components/PesanPudar.jsx'
 import PembaruanModal from '../components/PembaruanModal.jsx'
 import { Modal } from '../components/Modal.jsx'
@@ -18,15 +19,19 @@ export default function AturPage() {
     useStore()
   const [gelap, gantiTema, mode] = pakaiTema()
   const [warnaAktif, setWarnaAktif] = useState(bacaTemaWarna())
-  const [transisi, setTransisi] = useState(false)
+  const [transisi, setTransisi] = useState(null) // null | true (buka) | 'keluar'
 
   const transisiRef = useRef(null)
-  // Terapkan tema LANGSUNG agar tombol terasa responsif — overlay hanya kilat konfirmasi
+  // Terapkan tema LANGSUNG agar tombol terasa responsif.
+  // Overlay: fade in → jeda sebentar → fade out saat selesai.
   const jalankanTransisi = (terapkan) => {
     terapkan()
     setTransisi(true)
     clearTimeout(transisiRef.current)
-    transisiRef.current = setTimeout(() => setTransisi(false), 650)
+    transisiRef.current = setTimeout(() => {
+      setTransisi('keluar')
+      transisiRef.current = setTimeout(() => setTransisi(false), 420)
+    }, 680)
   }
   const gantiTemaTransisi = () => jalankanTransisi(gantiTema)
   const gantiWarna = (id) => {
@@ -49,6 +54,45 @@ export default function AturPage() {
       window.dispatchEvent(new CustomEvent('kasir:buka-tab', { detail: 'kasir' }))
     })
   }
+
+  // ===== QRIS terkunci PIN =====
+  const mulaiUbahQris = (aksi) => {
+    if (pinTersimpan) {
+      aksiQrisRef.current = aksi
+      setQrisPin('')
+      setQrisSalah(false)
+      setQrisMintaPin(true)
+      return
+    }
+    jalankanAksiQris(aksi)
+  }
+  const jalankanAksiQris = (aksi) => {
+    if (aksi === 'unggah') qrisInputRef.current?.click()
+    else {
+      ubah('qrisGambar', null)
+      setPesanQris({ ok: true, teks: t('QRIS dihapus.') })
+    }
+  }
+  const konfirmasiPinQris = () => {
+    if (qrisPin !== pinTersimpan) {
+      setQrisSalah(true)
+      return
+    }
+    setQrisMintaPin(false)
+    jalankanAksiQris(aksiQrisRef.current)
+  }
+  const unggahQrisBaru = async (e) => {
+    e.target.value = ''
+    const berkas = e.target.files?.[0]
+    if (!berkas) return
+    try {
+      const dataUrl = await bacaGambarKecil(berkas, 640)
+      ubah('qrisGambar', dataUrl)
+      setPesanQris({ ok: true, teks: t('QRIS tersimpan.') })
+    } catch {
+      setPesanQris({ ok: false, teks: t('Gagal membaca gambar.') })
+    }
+  }
   const [bahasaAktif, gantiBahasa] = pakaiBahasa()
   const [pinLama, setPinLama] = useState('')
   const [pinBaru, setPinBaru] = useState('')
@@ -62,6 +106,13 @@ export default function AturPage() {
   const [pesanCek, setPesanCek] = useState(null)
   const [pesanCadangan, setPesanCadangan] = useState(null)
   const [cadanganJalan, setCadanganJalan] = useState(false)
+  // QRIS terkunci PIN
+  const [qrisMintaPin, setQrisMintaPin] = useState(false)
+  const [qrisPin, setQrisPin] = useState('')
+  const [qrisSalah, setQrisSalah] = useState(false)
+  const [pesanQris, setPesanQris] = useState(null)
+  const aksiQrisRef = useRef(null)
+  const qrisInputRef = useRef(null)
 
   const jalankanEkspor = async () => {
     if (cadanganJalan) return
@@ -471,6 +522,56 @@ export default function AturPage() {
         </div>
       </Modal>
 
+      {/* Konfirmasi PIN untuk mengubah QRIS */}
+      <Modal
+        open={qrisMintaPin}
+        onClose={() => {
+          setQrisMintaPin(false)
+          setQrisPin('')
+          setQrisSalah(false)
+        }}
+        judul={t('Ganti QRIS')}
+      >
+        <p className="text-sm text-black/55">
+          {t('Masukkan PIN pengelola untuk mengganti QRIS.')}
+        </p>
+        <input
+          type="password"
+          inputMode="numeric"
+          autoFocus
+          value={qrisPin}
+          onChange={(e) => {
+            setQrisPin(e.target.value.replace(/\D/g, '').slice(0, 8))
+            setQrisSalah(false)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') konfirmasiPinQris()
+          }}
+          placeholder="• • • •"
+          className="input mt-3 text-center text-lg font-bold tracking-[0.5em]"
+        />
+        {qrisSalah && (
+          <p className="mt-2 text-center text-xs font-semibold text-red-500">
+            {t('PIN salah. Coba lagi.')}
+          </p>
+        )}
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => {
+              setQrisMintaPin(false)
+              setQrisPin('')
+              setQrisSalah(false)
+            }}
+            className="tombol--hantu w-full"
+          >
+            {t('Batal')}
+          </button>
+          <button onClick={konfirmasiPinQris} disabled={!qrisPin} className="tombol--utama w-full">
+            {t('Buka')}
+          </button>
+        </div>
+      </Modal>
+
       {/* Mode Lite */}
       <div className="kartu mx-5 mt-4 flex items-center justify-between gap-3">
         <div className="min-w-0">
@@ -493,6 +594,45 @@ export default function AturPage() {
             }`}
           />
         </button>
+      </div>
+
+      {/* QRIS Pembayaran — terkunci PIN */}
+      <div className="kartu mx-5 mt-4 space-y-3">
+        <div className="flex items-center gap-4">
+          <span className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-2xl bg-krem-tua">
+            {pengaturan.qrisGambar ? (
+              <img src={pengaturan.qrisGambar} alt="QRIS" className="h-full w-full object-contain p-1" />
+            ) : (
+              <Ikon nama="foto" className="h-6 w-6 text-black/30" />
+            )}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-bold">{t('QRIS Pembayaran')}</span>
+              <Ikon nama="kunci" className="h-3.5 w-3.5 shrink-0 text-black/30" />
+            </div>
+            <div className="text-xs text-black/45">
+              {pinTersimpan
+                ? t('Dikunci PIN — hanya pengelola yang bisa mengganti.')
+                : t('Buat PIN agar QRIS tidak mudah diganti.')}
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <button onClick={() => mulaiUbahQris('unggah')} className="tombol--hantu w-full !py-2 text-xs">
+            {pengaturan.qrisGambar ? t('Ganti QRIS') : t('Unggah QRIS')}
+          </button>
+          {pengaturan.qrisGambar && (
+            <button
+              onClick={() => mulaiUbahQris('hapus')}
+              className="tombol--hantu w-full !py-2 text-xs !text-red-500"
+            >
+              {t('Hapus QRIS')}
+            </button>
+          )}
+        </div>
+        <input ref={qrisInputRef} type="file" accept="image/*" className="hidden" onChange={unggahQrisBaru} />
+        <PesanPudar pesan={pesanQris} onSelesai={() => setPesanQris(null)} />
       </div>
 
       {/* Profil toko */}

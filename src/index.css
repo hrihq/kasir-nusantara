@@ -49,25 +49,25 @@
   position: relative;
   isolation: isolate;
 }
-/* Motif parang asli dari internet (CC0) + motif kawung sebagai cadangan offline.
-   Blend multiply membuat latar putih gambar menyatu dengan kertas — tidak tampak kotak. */
+/* Motif parang asli dari internet (CC0) — satu bidang penuh menutupi latar,
+   bukan kotak-kotak berulang. Blend multiply membuat latarnya menyatu dengan kertas. */
 [data-tema='batik'] .panggung::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: url('https://freesvg.org/img/Batik-Parang-Rusak-Seamless-Pattern.png'),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3Cg fill='%238a5a2b' fill-opacity='0.055'%3E%3Cellipse cx='26' cy='13' rx='8' ry='12'/%3E%3Cellipse cx='26' cy='39' rx='8' ry='12'/%3E%3Cellipse cx='13' cy='26' rx='12' ry='8'/%3E%3Cellipse cx='39' cy='26' rx='12' ry='8'/%3E%3Ccircle cx='26' cy='26' r='2.6'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 260px auto, 52px 52px;
-  background-repeat: repeat;
+  background-image: url('https://freesvg.org/img/Batik-Parang-Rusak-Seamless-Pattern.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   mix-blend-mode: multiply;
-  opacity: 0.16;
+  opacity: 0.2;
 }
 .dark[data-tema='batik'] .panggung::before {
   mix-blend-mode: screen;
   filter: invert(1);
-  opacity: 0.13;
+  opacity: 0.16;
 }
 /* Laut — biru laut dalam */
 [data-tema='laut'] {
@@ -171,33 +171,40 @@
   isolation: isolate;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.2),
-    rgba(255, 255, 255, 0.08) 45%,
-    rgba(255, 255, 255, 0.16)
+    rgba(255, 255, 255, 0.16),
+    rgba(255, 255, 255, 0.05) 42%,
+    rgba(255, 255, 255, 0.12)
   );
-  -webkit-backdrop-filter: blur(32px) saturate(210%);
-  backdrop-filter: blur(32px) saturate(210%);
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  -webkit-backdrop-filter: blur(36px) saturate(230%) brightness(1.06);
+  backdrop-filter: blur(36px) saturate(230%) brightness(1.06);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  /* Tepi pembias lensa: terang di atas & sisi, gelap lembut di bawah */
   box-shadow:
-    inset 0 1px 1.5px rgba(255, 255, 255, 0.7),
-    inset 0 -1px 2px rgba(36, 21, 7, 0.05),
-    0 18px 44px -12px rgba(36, 21, 7, 0.38),
-    0 4px 14px -6px rgba(36, 21, 7, 0.2);
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.9),
+    inset 0 -2px 3px rgba(36, 21, 7, 0.09),
+    inset 1.5px 0 2px rgba(255, 255, 255, 0.3),
+    inset -1.5px 0 2px rgba(255, 255, 255, 0.3),
+    0 20px 48px -12px rgba(36, 21, 7, 0.4),
+    0 2px 10px -2px rgba(36, 21, 7, 0.18);
 }
-/* Pil tab aktif: liquid glass bernuansa merek */
+/* Pil tab aktif: liquid glass lensa bernuansa merek — bukan sekadar frosted blur */
 .pil-kaca {
-  background: linear-gradient(
-    135deg,
-    rgb(var(--merek-rgb) / 0.95),
-    rgb(var(--merek-gelap-rgb) / 0.82)
-  );
-  -webkit-backdrop-filter: blur(16px) saturate(190%);
-  backdrop-filter: blur(16px) saturate(190%);
+  border: 1px solid rgb(255 255 255 / 0.5);
+  background:
+    radial-gradient(120% 150% at 22% 0%, rgba(255, 255, 255, 0.5), transparent 44%),
+    linear-gradient(135deg, rgb(var(--merek-rgb) / 0.94), rgb(var(--merek-gelap-rgb) / 0.84));
+  -webkit-backdrop-filter: blur(20px) saturate(250%) brightness(1.08);
+  backdrop-filter: blur(20px) saturate(250%) brightness(1.08);
   box-shadow:
-    inset 0 1px 1.5px rgba(255, 255, 255, 0.5),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.22),
-    inset 0 0 14px rgb(255 255 255 / 0.12),
-    0 8px 22px -6px rgb(var(--merek-gelap-rgb) / 0.55);
+    inset 0 1.5px 1.5px rgba(255, 255, 255, 0.65),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.28),
+    inset 1.5px 0 3px rgba(255, 255, 255, 0.28),
+    inset -1.5px 0 3px rgba(0, 0, 0, 0.14),
+    0 10px 26px -6px rgb(var(--merek-gelap-rgb) / 0.62),
+    0 2px 8px -2px rgb(var(--merek-gelap-rgb) / 0.35);
+}
+.dark .pil-kaca {
+  border-color: rgb(255 255 255 / 0.22);
 }
 .pil-kaca::after {
   content: '';

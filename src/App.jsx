@@ -7,6 +7,7 @@ import { pakaiBahasa, t } from './lib/bahasa.js'
 import PembaruanModal from './components/PembaruanModal.jsx'
 import CatatanRilisModal from './components/CatatanRilisModal.jsx'
 import TabBar from './components/TabBar.jsx'
+import Ikon from './components/Ikon.jsx'
 import { Modal } from './components/Modal.jsx'
 import KasirPage from './pages/KasirPage.jsx'
 import MenuPage from './pages/MenuPage.jsx'
@@ -199,7 +200,7 @@ function Halaman() {
             className="bilah-kaca pointer-events-auto flex items-center gap-2 rounded-full px-6 py-3 text-xs font-bold shadow-lg transition active:scale-95"
             style={{ color: 'var(--teks)' }}
           >
-            <span aria-hidden="true">🔒</span>
+            <Ikon nama="kunci" className="h-4 w-4" />
             {t('Keluar Mode Lite')}
           </button>
         </nav>

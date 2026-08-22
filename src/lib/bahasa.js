@@ -266,6 +266,21 @@ const EN = {
   'Cadangan tersimpan di folder Documents.': 'Backup saved to your Documents folder.',
   'Notifikasi pembaruan aplikasi': 'App update notifications',
 
+  // QRIS terkunci
+  'QRIS Pembayaran': 'QRIS Payment',
+  'Dikunci PIN — hanya pengelola yang bisa mengganti.':
+    'PIN-locked — only the manager can change it.',
+  'Buat PIN agar QRIS tidak mudah diganti.':
+    'Create a PIN so the QRIS cannot be changed easily.',
+  'Unggah QRIS': 'Upload QRIS',
+  'Hapus QRIS': 'Remove QRIS',
+  'Masukkan PIN pengelola untuk mengganti QRIS.':
+    'Enter the manager PIN to change the QRIS.',
+  'QRIS dihapus.': 'QRIS removed.',
+  'Belum ada QRIS': 'No QRIS yet',
+  'Atur QRIS lewat menu Pengaturan.': 'Set your QRIS from Settings.',
+  'QRIS diatur lewat menu Pengaturan.': 'QRIS is managed from Settings.',
+
   // Struk
   'Struk Transaksi': 'Receipt',
   'Telp.': 'Phone',

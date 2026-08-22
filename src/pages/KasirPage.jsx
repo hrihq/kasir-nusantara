@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useStore } from '../context/StoreContext.jsx'
 import { rupiah } from '../lib/format.js'
-import { bacaGambarKecil } from '../lib/gambar.js'
 import { bunyiSukses } from '../lib/suara.js'
 import { t } from '../lib/bahasa.js'
-import PesanPudar from '../components/PesanPudar.jsx'
 import { pakaiTema } from '../lib/tema.js'
 import Ikon from '../components/Ikon.jsx'
 import ProdukAvatar from '../components/ProdukAvatar.jsx'
@@ -56,28 +54,15 @@ function InputQty({ nilai, ubah }) {
 }
 
 function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, garis, onSuccess }) {
-  const { simpanTransaksi, pengaturan, setPengaturan } = useStore()
+  const { simpanTransaksi, pengaturan } = useStore()
   const [metode, setMetode] = useState('Tunai')
   const [bayar, setBayar] = useState('')
-  const [pesanQris, setPesanQris] = useState(null)
 
   const totalAkhir = metode === 'Tunai' ? Math.ceil(total / 500) * 500 : total
   const nominal = Number(bayar) || 0
   const kembalian = metode === 'Tunai' ? nominal - totalAkhir : 0
   const cukup = metode !== 'Tunai' || nominal >= totalAkhir
   const tampilBayar = bayar === '' ? '' : new Intl.NumberFormat('id-ID').format(Number(bayar))
-
-  const unggahQris = async (e) => {
-    const berkas = e.target.files?.[0]
-    if (!berkas) return
-    try {
-      const dataUrl = await bacaGambarKecil(berkas, 640)
-      setPengaturan((s) => ({ ...s, qrisGambar: dataUrl }))
-      setPesanQris({ ok: true, teks: t('QRIS tersimpan.') })
-    } catch {
-      setPesanQris({ ok: false, teks: t('Gagal membaca gambar.') })
-    }
-  }
 
   const selesai = () => {
     const trx = simpanTransaksi({
@@ -179,20 +164,18 @@ function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, gar
           {pengaturan.qrisGambar ? (
             <div className="flex flex-col items-center gap-2 rounded-2xl bg-white p-4 shadow-kartu">
               <img src={pengaturan.qrisGambar} alt="Kode QRIS" className="max-h-60 rounded-xl" />
-              <label className="chip cursor-pointer gap-1.5 bg-krem-tua text-xs">
-                {t('Ganti QRIS')}
-                <input type="file" accept="image/*" className="hidden" onChange={unggahQris} />
-              </label>
+              <p className="text-[11px] text-black/40">{t('QRIS diatur lewat menu Pengaturan.')}</p>
             </div>
           ) : (
-            <label className="flex cursor-pointer flex-col items-center gap-1 rounded-2xl border border-dashed border-black/25 py-7 text-center">
+            <label
+              onClick={() => window.dispatchEvent(new CustomEvent('kasir:buka-tab', { detail: 'atur' }))}
+              className="flex cursor-pointer flex-col items-center gap-1 rounded-2xl border border-dashed border-black/25 py-7 text-center"
+            >
               <Ikon nama="foto" className="h-8 w-8 text-merek" />
-              <span className="text-sm font-bold">{t('Tambahkan QRIS')}</span>
-              <span className="text-xs text-black/45">{t('Ambil foto atau pilih gambar kode QRIS-mu')}</span>
-              <input type="file" accept="image/*" className="hidden" onChange={unggahQris} />
+              <span className="text-sm font-bold">{t('Belum ada QRIS')}</span>
+              <span className="text-xs text-black/45">{t('Atur QRIS lewat menu Pengaturan.')}</span>
             </label>
           )}
-          <PesanPudar pesan={pesanQris} onSelesai={() => setPesanQris(null)} />
         </div>
       )}
 
@@ -373,7 +356,13 @@ export default function KasirPage() {
 
       {/* Batang keranjang mengapung */}
       {jmlItem > 0 && !sheetBuka && !bayarBuka && (
-        <div className="fixed bottom-[96px] left-1/2 z-30 w-full max-w-[398px] -translate-x-1/2 px-4 layar:bottom-6 layar:left-[calc((100%-104px)/2)]">
+        <div
+          className={`fixed left-1/2 z-30 w-full max-w-[398px] -translate-x-1/2 px-4 layar:left-[calc((100%-104px)/2)] ${
+            pengaturan.modeLite
+              ? 'bottom-[84px] layar:bottom-[74px]'
+              : 'bottom-[96px] layar:bottom-6'
+          }`}
+        >
           <button
             onClick={() => setSheetBuka(true)}
             className="tombol--utama anim-muncul w-full justify-between rounded-2xl py-3.5 shadow-lg"

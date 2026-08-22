@@ -4,6 +4,15 @@ Semua perubahan penting aplikasi Kasir Nusantara dicatat di sini.
 Saat rilis, bagian versi teratas otomatis dipakai sebagai catatan rilis di GitHub
 dan ditampilkan sebagai changelog di dalam aplikasi.
 
+## 1.0.18
+
+- QRIS dipindah ke Pengaturan & terkunci PIN — tidak mudah diganti orang
+- Ikon gembok baru menggantikan emoji di Mode Lite
+- Keranjang tidak lagi tertutup bilah Mode Lite
+- Pil tab kini liquid glass sungguhan: kilau tepi lensa, bukan sekadar frosted blur
+- Motif batik tampil penuh memenuhi latar (tidak lagi kotak-kotak)
+- Transisi tema: progress bar fade in di tengah layar & fade out saat selesai
+
 ## 1.0.17
 
 - Motif batik kini menyatu penuh dengan latar (tidak lagi tampak kotak-kotak)

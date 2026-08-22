@@ -71,6 +71,14 @@ const JALUR = {
       <path d="M4 19h16" />
     </>
   ),
+  kunci: (
+    <>
+      <rect x="4.5" y="10.5" width="15" height="10" rx="2.6" />
+      <path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7" />
+      <circle cx="12" cy="15.4" r="1.5" />
+      <path d="M12 16.9v1.6" />
+    </>
+  ),
 }
 
 export default function Ikon({ nama, className = 'h-5 w-5' }) {

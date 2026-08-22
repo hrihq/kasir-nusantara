@@ -1,12 +1,16 @@
 import { t } from '../lib/bahasa.js'
 
-// Overlay transisi tema: progress bar + emoji senyum yang bergerak.
-// Selalu di tengah, baik portrait maupun landscape (flex center + fixed inset).
+// Overlay transisi tema: progress bar + emoji senyum bergerak.
+// tampil: true = fade in · 'keluar' = fade out · falsy = tersembunyi.
+// Selalu di tengah, baik portrait maupun landscape (fixed inset + flex center).
 export default function TransisiTema({ tampil }) {
   if (!tampil) return null
+  const keluar = tampil === 'keluar'
   return (
     <div
-      className="anim-muncul fixed inset-0 z-[120] flex flex-col items-center justify-center gap-7"
+      className={`fixed inset-0 z-[120] flex flex-col items-center justify-center gap-7 ${
+        keluar ? 'anim-padam pointer-events-none' : 'anim-muncul'
+      }`}
       style={{ background: 'var(--latar)' }}
       aria-live="polite"
     >
