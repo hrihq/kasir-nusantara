@@ -5,7 +5,7 @@ export default {
     extend: {
       screens: {
         layar: {
-          raw: '(min-width: 1024px), (orientation: landscape) and (min-height: 500px)',
+          raw: '(min-width: 1024px), (orientation: landscape) and (min-height: 300px)',
         },
       },
       colors: {

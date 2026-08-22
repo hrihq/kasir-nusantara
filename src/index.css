@@ -36,6 +36,7 @@
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
     touch-action: manipulation;
+    scroll-behavior: smooth;
   }
   body {
     @apply font-badan antialiased;
@@ -74,7 +75,7 @@
 }
 
 /* HP/tablet diputar (landscape asli, keyboard tertutup): layar penuh */
-@media (orientation: landscape) and (min-height: 500px) and (max-width: 1023.98px) {
+@media (orientation: landscape) and (min-height: 300px) and (max-width: 1023.98px) {
   .panggung {
     max-width: none;
     box-shadow: none;
@@ -221,6 +222,19 @@
 .anim-pemuat {
   animation: pemuat 1s ease-in-out infinite;
 }
+@keyframes garis-centang {
+  from {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 0;
+  }
+}
+.anim-garis-centang {
+  animation: garis-centang 0.45s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .anim-dari-kanan,
@@ -228,7 +242,8 @@
   .anim-pudar,
   .anim-naik,
   .anim-muncul,
-  .anim-pemuat {
+  .anim-pemuat,
+  .anim-garis-centang {
     animation: none !important;
   }
 }

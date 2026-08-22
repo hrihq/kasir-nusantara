@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Capacitor } from '@capacitor/core'
 import { Modal } from './Modal.jsx'
 import { unduhApk, pasangApk } from '../lib/update.js'
@@ -18,12 +18,23 @@ const barisCatatan = (teks) =>
 
 const mb = (b) => `${(b / 1048576).toFixed(1)} MB`
 
+function IkonSelesai() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+      <path d="M20 6 9 17l-5-5" className="anim-garis-centang" />
+    </svg>
+  )
+}
+
 export default function PembaruanModal({ info, tutup }) {
   const [fase, setFase] = useState('awal')
   const [progres, setProgres] = useState(0)
   const [terunduh, setTerunduh] = useState(0)
   const [galat, setGalat] = useState(false)
   const [detailGalat, setDetailGalat] = useState('')
+  const timerRef = useRef(null)
+
+  useEffect(() => () => clearTimeout(timerRef.current), [])
 
   const mulaiUnduh = async () => {
     if (!Capacitor.isNativePlatform() && !window.__paksaNative) {
@@ -39,7 +50,10 @@ export default function PembaruanModal({ info, tutup }) {
         setProgres(p)
         setTerunduh(b)
       })
-      setFase('siap-pasang')
+      setProgres(1)
+      setFase('selesai')
+      clearTimeout(timerRef.current)
+      timerRef.current = setTimeout(() => setFase('siap-pasang'), 850)
     } catch (e) {
       setFase('gagal')
       setDetailGalat(e?.message || '')
@@ -59,6 +73,8 @@ export default function PembaruanModal({ info, tutup }) {
 
   const persen = Math.min(100, Math.round(progres * 100))
   const poin = barisCatatan(info?.catatan)
+  const tampilkanCatatan =
+    (fase === 'awal' || fase === 'gagal' || fase === 'siap-pasang') && poin.length > 0
 
   return (
     <Modal open={!!info} onClose={tutup} judul="Pembaruan Tersedia">
@@ -74,88 +90,107 @@ export default function PembaruanModal({ info, tutup }) {
               <p className="text-xs" style={{ color: 'var(--teks)', opacity: 0.55 }}>
                 {fase === 'mengunduh'
                   ? `Mengunduh… ${terunduh > 0 ? mb(terunduh) : ''}`
-                  : 'Yang baru dalam versi ini:'}
+                  : fase === 'selesai'
+                    ? 'Berkas siap dipasang.'
+                    : 'Yang baru dalam versi ini:'}
               </p>
             </div>
           </div>
 
-          {fase !== 'mengunduh' && poin.length > 0 && (
-            <div className="max-h-44 space-y-2 overflow-y-auto rounded-2xl bg-white p-4 shadow-kartu">
-              {poin.map((b, i) => (
-                <div key={i} className="flex items-start gap-2 text-sm text-black/60">
-                  <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-merek" />
-                  <span>{b}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {fase === 'mengunduh' && (
-            <div className="rounded-2xl bg-white p-4 shadow-kartu">
-              <div className="mb-2 flex items-center justify-between text-xs font-semibold text-black/50">
-                <span>Menyiapkan berkas pemasangan…</span>
-                <span>{persen}%</span>
+          <div key={fase} className="anim-muncul space-y-3">
+            {tampilkanCatatan && (
+              <div className="max-h-44 space-y-2 overflow-y-auto rounded-2xl bg-white p-4 shadow-kartu">
+                {poin.map((b, i) => (
+                  <div key={i} className="flex items-start gap-2 text-sm text-black/60">
+                    <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-merek" />
+                    <span>{b}</span>
+                  </div>
+                ))}
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-black/10">
-                <div
-                  className={`h-full rounded-full bg-merek transition-[width] duration-200 ${
-                    progres === 0 ? 'anim-pemuat w-1/3' : ''
-                  }`}
-                  style={progres > 0 ? { width: `${persen}%` } : undefined}
-                />
+            )}
+
+            {(fase === 'mengunduh' || fase === 'selesai') && (
+              <div className="rounded-2xl bg-white p-4 shadow-kartu">
+                {fase === 'mengunduh' ? (
+                  <>
+                    <div className="mb-2 flex items-center justify-between text-xs font-semibold text-black/50">
+                      <span>Menyiapkan berkas pemasangan…</span>
+                      <span>{persen}%</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-black/10">
+                      <div
+                        className={`h-full rounded-full bg-merek transition-[width] duration-300 ease-out ${
+                          progres === 0 ? 'anim-pemuat w-1/3' : ''
+                        }`}
+                        style={progres > 0 ? { width: `${persen}%` } : undefined}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <span className="grid h-10 w-10 place-items-center rounded-full bg-emerald-500 text-white shadow-kartu">
+                      <IkonSelesai />
+                    </span>
+                    <div>
+                      <p className="text-sm font-bold">Unduhan Selesai</p>
+                      <p className="text-xs text-black/50">
+                        {terunduh > 0 ? `${mb(terunduh)} · ` : ''}Menyiapkan pemasangan…
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            )}
 
-          {galat && (
-            <>
-              <p className="text-center text-xs font-semibold text-red-600">
-                Unduhan gagal setelah mencoba beberapa jalur.
-              </p>
-              {detailGalat && (
-                <p className="text-center text-[10px] text-black/40">{detailGalat}</p>
-              )}
-            </>
-          )}
+            {galat && (
+              <>
+                <p className="text-center text-xs font-semibold text-red-600">
+                  Unduhan gagal setelah mencoba beberapa jalur.
+                </p>
+                {detailGalat && (
+                  <p className="text-center text-[10px] text-black/40">{detailGalat}</p>
+                )}
+              </>
+            )}
 
-          {!info.urlUnduh.includes('.apk') && (
-            <p className="text-xs text-black/40">Berkas APK belum dilampirkan pada rilis ini.</p>
-          )}
+            {!info.urlUnduh.includes('.apk') && (
+              <p className="text-xs text-black/40">Berkas APK belum dilampirkan pada rilis ini.</p>
+            )}
 
-          {(fase === 'awal' || fase === 'gagal') && info.urlUnduh.includes('.apk') && (
-            <button onClick={mulaiUnduh} className="tombol--utama w-full">
-              {fase === 'gagal' ? 'Coba Lagi' : 'Unduh Sekarang'}
+            {(fase === 'awal' || fase === 'gagal') && info.urlUnduh.includes('.apk') && (
+              <button onClick={mulaiUnduh} className="tombol--utama w-full">
+                {fase === 'gagal' ? 'Coba Lagi' : 'Unduh Sekarang'}
+              </button>
+            )}
+            {galat && (
+              <button
+                onClick={() => window.open(info.urlUnduh, '_blank')}
+                className="tombol--hantu w-full"
+              >
+                Unduh lewat Browser
+              </button>
+            )}
+            {fase === 'mengunduh' && (
+              <button disabled className="tombol--utama w-full opacity-60">
+                Mengunduh… {persen}%
+              </button>
+            )}
+            {fase === 'siap-pasang' && (
+              <button onClick={pasang} className="tombol--utama w-full">
+                Pasang Sekarang
+              </button>
+            )}
+            {!info.urlUnduh.includes('.apk') && (
+              <button onClick={() => window.open(info.urlUnduh, '_blank')} className="tombol--utama w-full">
+                Lihat di GitHub
+              </button>
+            )}
+            <button onClick={tutup} className="tombol--hantu w-full">
+              Nanti Saja
             </button>
-          )}
-          {galat && (
-            <button
-              onClick={() => window.open(info.urlUnduh, '_blank')}
-              className="tombol--hantu w-full"
-            >
-              Unduh lewat Browser
-            </button>
-          )}
-          {fase === 'mengunduh' && (
-            <button disabled className="tombol--utama w-full opacity-60">
-              Mengunduh… {persen}%
-            </button>
-          )}
-          {fase === 'siap-pasang' && (
-            <button onClick={pasang} className="tombol--utama w-full">
-              Pasang Sekarang
-            </button>
-          )}
-          {!info.urlUnduh.includes('.apk') && (
-            <button onClick={() => window.open(info.urlUnduh, '_blank')} className="tombol--utama w-full">
-              Lihat di GitHub
-            </button>
-          )}
-          <button onClick={tutup} className="tombol--hantu w-full">
-            Nanti Saja
-          </button>
+          </div>
         </div>
       )}
     </Modal>
   )
 }
-
