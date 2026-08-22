@@ -315,7 +315,7 @@ export default function KasirPage() {
       </div>
 
       {/* Grid menu */}
-      <div className="grid grid-cols-2 gap-3 px-5 pt-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 px-5 pt-3 layar:grid-cols-4">
         {hasil.map((p) => (
           <button
             key={p.id}
@@ -362,7 +362,7 @@ export default function KasirPage() {
 
       {/* Batang keranjang mengapung */}
       {jmlItem > 0 && !sheetBuka && !bayarBuka && (
-        <div className="fixed bottom-[96px] left-1/2 z-30 w-full max-w-[398px] -translate-x-1/2 px-4">
+        <div className="fixed bottom-[96px] left-1/2 z-30 w-full max-w-[398px] -translate-x-1/2 px-4 layar:bottom-6 layar:left-[calc((100%-104px)/2)]">
           <button
             onClick={() => setSheetBuka(true)}
             className="tombol--utama anim-muncul w-full justify-between rounded-2xl py-3.5 shadow-lg"

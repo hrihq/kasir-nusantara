@@ -3,6 +3,11 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
+      screens: {
+        layar: {
+          raw: '(min-width: 1024px), (orientation: landscape) and (min-height: 500px)',
+        },
+      },
       colors: {
         merek: {
           DEFAULT: '#b23b22',

@@ -86,7 +86,7 @@ export default function TabBar({ tab, setTab }) {
   }
 
   return (
-    <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))] lg:inset-x-auto lg:right-[max(1rem,env(safe-area-inset-right))] lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 lg:pb-0">
+    <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))] layar:inset-x-auto layar:right-[max(1rem,env(safe-area-inset-right))] layar:bottom-auto layar:top-1/2 layar:-translate-y-1/2 layar:pb-0">
       <div
         ref={wadahRef}
         onTouchStart={mulai}
@@ -96,8 +96,7 @@ export default function TabBar({ tab, setTab }) {
           sentuh.current = null
           setSorot(null)
         }}
-        className="pointer-events-auto relative flex w-[calc(100vw-2.5rem)] max-w-[380px] items-center gap-1 rounded-full p-1.5 shadow-kartu ring-1 ring-black/10 backdrop-blur-xl lg:w-auto lg:flex-col lg:rounded-[22px]"
-        style={{ backgroundColor: 'var(--permukaan)', ['--tw-ring-color']: 'var(--garis)' }}
+        className="bilah-kaca pointer-events-auto relative flex w-[calc(100vw-2.5rem)] max-w-[380px] items-center gap-1 rounded-full p-1.5 layar:w-auto layar:flex-col layar:gap-1.5 layar:rounded-[26px] layar:p-2"
       >
         {kotak && (
           <span
@@ -120,11 +119,11 @@ export default function TabBar({ tab, setTab }) {
                 tombolRefs.current[t.id] = el
               }}
               onClick={() => setTab(t.id)}
-              className="relative z-[1] flex flex-1 items-center justify-center gap-1.5 rounded-full py-2.5 text-xs font-semibold transition-colors duration-200 active:scale-95"
+              className="relative z-[1] flex flex-1 items-center justify-center gap-1.5 rounded-full py-3 text-xs font-semibold transition-colors duration-200 active:scale-95 layar:w-[76px] layar:flex-none layar:flex-col layar:gap-1 layar:px-3"
               style={diAtas ? { color: '#ffffff' } : { color: 'var(--teks)', opacity: 0.55 }}
             >
-              <Ikon nama={t.ikon} className="h-[18px] w-[18px]" />
-              {t.label}
+              <Ikon nama={t.ikon} className="h-[19px] w-[19px]" />
+              <span className="leading-none">{t.label}</span>
             </button>
           )
         })}

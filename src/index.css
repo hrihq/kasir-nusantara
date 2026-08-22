@@ -70,7 +70,7 @@
 @layer components {
 .panggung {
   @apply relative mx-auto min-h-screen w-full max-w-[430px] bg-krem shadow-lembar;
-  @apply lg:max-w-none lg:shadow-none;
+  @apply layar:max-w-none layar:shadow-none layar:pr-[104px];
 }
 
 /* HP/tablet diputar (landscape asli, keyboard tertutup): layar penuh */
@@ -79,6 +79,34 @@
     max-width: none;
     box-shadow: none;
   }
+}
+
+/* ====== NAVBAR SOFT LIQUID GLASS ====== */
+.bilah-kaca {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.74),
+    rgba(255, 255, 255, 0.46)
+  );
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -1px 2px rgba(36, 21, 7, 0.05),
+    0 12px 36px -10px rgba(36, 21, 7, 0.3);
+}
+.dark .bilah-kaca {
+  background: linear-gradient(
+    135deg,
+    rgba(64, 53, 41, 0.66),
+    rgba(28, 22, 16, 0.52)
+  );
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.09),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.25),
+    0 12px 36px -10px rgba(0, 0, 0, 0.65);
 }
   .kartu {
     @apply rounded-2xl bg-white p-4 shadow-kartu;

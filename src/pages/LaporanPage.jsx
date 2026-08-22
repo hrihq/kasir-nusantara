@@ -252,7 +252,7 @@ export default function LaporanPage() {
       <PesanPudar pesan={pesanExcel} onSelesai={() => setPesanExcel(null)} />
 
       {/* Ringkasan */}
-      <div className="grid grid-cols-2 gap-3 px-5 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 px-5 layar:grid-cols-4">
         <KartuStat label={`Omzet ${periode} hari`} nilai={rupiah(omzet)} warna="text-merek" garis="bg-merek" />
         <KartuStat label="Transaksi" nilai={`${jmlTrx} order`} garis="bg-amber-400" />
         <KartuStat label="Pengeluaran" nilai={rupiah(beban)} garis="bg-[#7a5c49]" />
