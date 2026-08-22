@@ -249,6 +249,22 @@ const EN = {
   'Beralih ke jalur lain…': 'Switching to another route…',
   'Jaringan lambat…': 'Slow network…',
 
+  // Kolom menu & Mode Lite
+  'Kolom Menu': 'Menu Columns',
+  'Jumlah kolom menu di halaman kasir': 'Number of columns on the cashier page',
+  '2 kolom': '2 columns',
+  '3 kolom': '3 columns',
+  '4 kolom': '4 columns',
+  'Mode Lite': 'Lite Mode',
+  'Hanya kasir & pembayaran. Keluar wajib PIN.':
+    'Cashier & payment only. PIN required to exit.',
+  'Buat PIN dulu di bawah untuk mengaktifkan Mode Lite.':
+    'Create a PIN below first to enable Lite Mode.',
+  'Keluar Mode Lite': 'Exit Lite Mode',
+  'Masukkan PIN untuk kembali ke mode lengkap.':
+    'Enter your PIN to return to full mode.',
+  'Cadangan tersimpan di folder Documents.': 'Backup saved to your Documents folder.',
+
   // Struk
   'Struk Transaksi': 'Receipt',
   'Telp.': 'Phone',

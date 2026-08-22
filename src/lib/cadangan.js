@@ -12,17 +12,38 @@ export async function eksporCadangan() {
   }
   const isi = JSON.stringify({ aplikasi: 'kasir-nusantara', versiCadangan: 1, data })
   const nama = `cadangan-kasir-${new Date().toISOString().slice(0, 10)}.json`
-  await Filesystem.writeFile({ path: nama, data: isi, directory: Directory.Cache, encoding: Encoding.UTF8 })
+
+  // Native: utamakan simpan langsung ke folder Documents di HP
   if (Capacitor.isNativePlatform()) {
-    await PembukaApk.bagikan({ file: nama, jenis: 'application/json' })
-  } else {
-    const url = URL.createObjectURL(new Blob([isi], { type: 'application/json' }))
-    const a = document.createElement('a')
-    a.href = url
-    a.download = nama
-    a.click()
-    URL.revokeObjectURL(url)
+    try {
+      await Filesystem.writeFile({
+        path: nama,
+        data: isi,
+        directory: Directory.Documents,
+        encoding: Encoding.UTF8,
+        recursive: true,
+      })
+      return { lokasi: 'documents', nama }
+    } catch {
+      // Gagal (izin/SAF) → jatuh ke bagikan lewat sheet
+      await Filesystem.writeFile({
+        path: nama,
+        data: isi,
+        directory: Directory.Cache,
+        encoding: Encoding.UTF8,
+      })
+      await PembukaApk.bagikan({ file: nama, jenis: 'application/json' })
+      return { lokasi: 'bagikan', nama }
+    }
   }
+
+  const url = URL.createObjectURL(new Blob([isi], { type: 'application/json' }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = nama
+  a.click()
+  URL.revokeObjectURL(url)
+  return { lokasi: 'unduh', nama }
 }
 
 export async function imporCadangan(berkas) {

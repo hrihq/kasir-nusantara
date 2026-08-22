@@ -34,6 +34,17 @@ export default function AturPage() {
     setWarnaAktif(id)
     jalankanTransisi(() => aturTemaWarna(id))
   }
+
+  // Mode Lite: aktif di sini, keluar lewat tombol gembok di dalam Mode Lite (wajib PIN)
+  const saklarLite = () => {
+    if (pengaturan.modeLite) return
+    if (!pinTersimpan) {
+      setPesanPin({ ok: false, teks: t('Buat PIN dulu di bawah untuk mengaktifkan Mode Lite.') })
+      setGantiBuka(true)
+      return
+    }
+    jalankanTransisi(() => ubah('modeLite', true))
+  }
   const [bahasaAktif, gantiBahasa] = pakaiBahasa()
   const [pinLama, setPinLama] = useState('')
   const [pinBaru, setPinBaru] = useState('')
@@ -53,8 +64,14 @@ export default function AturPage() {
     setCadanganJalan(true)
     setPesanCadangan(null)
     try {
-      await eksporCadangan()
-      setPesanCadangan({ ok: true, teks: t('Cadangan siap — kirim ke WhatsApp/Drive untuk disimpan.') })
+      const hasil = await eksporCadangan()
+      setPesanCadangan({
+        ok: true,
+        teks:
+          hasil?.lokasi === 'documents'
+            ? t('Cadangan tersimpan di folder Documents.')
+            : t('Cadangan siap — kirim ke WhatsApp/Drive untuk disimpan.'),
+      })
     } catch (g) {
       setPesanCadangan({ ok: false, teks: `${t('Gagal membuat cadangan:')} ${g?.message || t('Coba Lagi')}` })
     }
@@ -276,6 +293,32 @@ export default function AturPage() {
         </select>
       </div>
 
+      {/* Kolom menu kasir */}
+      <div className="kartu mx-5 mt-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-bold">{t('Kolom Menu')}</div>
+            <div className="text-xs text-black/45">{t('Jumlah kolom menu di halaman kasir')}</div>
+          </div>
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {[2, 3, 4].map((n) => (
+            <button
+              key={n}
+              onClick={() => ubah('kolomMenu', n)}
+              aria-label={`${n} kolom`}
+              className={`rounded-xl py-2.5 text-sm font-bold transition duration-200 active:scale-95 ${
+                (Number(pengaturan.kolomMenu) || 2) === n
+                  ? 'bg-merek text-white'
+                  : 'bg-white text-black/60 ring-1 ring-black/10'
+              }`}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Pengingat */}
       <div className="kartu mx-5 mt-4 flex items-center justify-between gap-3">
         <div>
@@ -423,6 +466,30 @@ export default function AturPage() {
           </button>
         </div>
       </Modal>
+
+      {/* Mode Lite */}
+      <div className="kartu mx-5 mt-4 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-sm font-bold">{t('Mode Lite')}</div>
+          <div className="text-xs text-black/45">
+            {t('Hanya kasir & pembayaran. Keluar wajib PIN.')}
+          </div>
+        </div>
+        <button
+          role="switch"
+          aria-checked={!!pengaturan.modeLite}
+          onClick={saklarLite}
+          className={`relative h-6 w-11 shrink-0 rounded-full transition duration-200 ${
+            pengaturan.modeLite ? 'bg-merek' : 'bg-black/15'
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all duration-200 ${
+              pengaturan.modeLite ? 'left-[22px]' : 'left-0.5'
+            }`}
+          />
+        </button>
+      </div>
 
       {/* Profil toko */}
       <div className="kartu mx-5 mt-4 space-y-4">

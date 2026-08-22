@@ -1,5 +1,5 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
-import { Filesystem, Directory } from '@capacitor/filesystem'
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { LocalNotifications } from '@capacitor/local-notifications'
 import { t } from './bahasa.js'
 import pkg from '../../package.json'
@@ -9,6 +9,7 @@ export const VERSI = pkg.version
 const GITHUB_REPO = 'hrihq/kasir-nusantara'
 
 export const NAMA_FILE_APK = 'KasirNusantara-pembaruan.apk'
+const NAMA_FILE_RILIS = 'rilis-terbaru.json'
 
 export const PembukaApk = registerPlugin('PembukaApk')
 
@@ -21,25 +22,61 @@ const bandingkanVersi = (a, b) => {
   return 0
 }
 
+// Jalur API berurutan: resmi → cermin (untuk ISP yang memblokir GitHub)
+const RUTE_RILIS = [
+  (repo) => `https://api.github.com/repos/${repo}/releases/latest`,
+  (repo) => `https://gh-proxy.com/https://api.github.com/repos/${repo}/releases/latest`,
+  (repo) => `https://ghp.ci/https://api.github.com/repos/${repo}/releases/latest`,
+]
+
+const olahRilis = (data) => {
+  const versi = String(data?.tag_name || '').replace(/^v/i, '')
+  if (!versi || bandingkanVersi(versi, VERSI) <= 0) return null
+  const apk = (data.assets || []).find((a) => a.name.toLowerCase().endsWith('.apk'))
+  return {
+    versi,
+    catatan: data.body || '',
+    urlUnduh: apk ? apk.browser_download_url : data.html_url,
+  }
+}
+
 export async function cekPembaruan() {
   if (!GITHUB_REPO || GITHUB_REPO.includes('USERNAME')) return null
-  try {
-    const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
-      headers: { Accept: 'application/vnd.github+json' },
-    })
-    if (!res.ok) return null
-    const data = await res.json()
-    const versi = String(data.tag_name || '').replace(/^v/i, '')
-    if (!versi || bandingkanVersi(versi, VERSI) <= 0) return null
-    const apk = (data.assets || []).find((a) => a.name.toLowerCase().endsWith('.apk'))
-    return {
-      versi,
-      catatan: data.body || '',
-      urlUnduh: apk ? apk.browser_download_url : data.html_url,
+  // 1) fetch biasa lewat beberapa jalur
+  for (const rute of RUTE_RILIS) {
+    try {
+      const res = await fetch(rute(GITHUB_REPO), {
+        headers: { Accept: 'application/vnd.github+json' },
+      })
+      if (!res.ok) continue
+      const data = await res.json()
+      const hasil = olahRilis(data)
+      if (hasil) return hasil
+      if (data?.tag_name) return null // respons sah — memang belum ada yang lebih baru
+    } catch {
+      /* coba jalur berikutnya */
     }
-  } catch {
-    return null
   }
+  // 2) native: tarik JSON lewat plugin — bebas blokir CORS/ISP WebView
+  if (Capacitor.isNativePlatform()) {
+    for (const rute of RUTE_RILIS) {
+      try {
+        await PembukaApk.unduh({ url: rute(GITHUB_REPO), file: NAMA_FILE_RILIS })
+        const f = await Filesystem.readFile({
+          path: NAMA_FILE_RILIS,
+          directory: Directory.Cache,
+          encoding: Encoding.UTF8,
+        })
+        const data = JSON.parse(typeof f.data === 'string' ? f.data : atob(f.data))
+        const hasil = olahRilis(data)
+        if (hasil) return hasil
+        if (data?.tag_name) return null
+      } catch {
+        /* coba jalur berikutnya */
+      }
+    }
+  }
+  return null
 }
 
 export const besok = () => {

@@ -313,15 +313,20 @@ export default function KasirPage() {
           <button
             key={k}
             onClick={() => setKat(k)}
-            className={`chip ${kat === k ? 'bg-merek text-white' : 'bg-white text-black/60 ring-1 ring-black/10'}`}
+            className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition active:scale-95 ${
+              kat === k ? 'bg-merek text-white' : 'bg-white text-black/60 ring-1 ring-black/10'
+            }`}
           >
             {k === 'Semua' ? t('Semua') : k}
           </button>
         ))}
       </div>
 
-      {/* Grid menu */}
-      <div className="grid grid-cols-2 gap-3 px-5 pt-3 layar:grid-cols-6 layar:gap-2 layar:px-4 layar:pt-2">
+      {/* Grid menu — jumlah kolom mengikuti pengaturan pengguna (portrait) */}
+      <div
+        className="grid grid-cols-[repeat(var(--kolom),minmax(0,1fr))] gap-3 px-5 pt-3 layar:grid-cols-6 layar:gap-2 layar:px-4 layar:pt-2"
+        style={{ '--kolom': Number(pengaturan.kolomMenu) || 2 }}
+      >
         {hasil.map((p) => (
           <button
             key={p.id}

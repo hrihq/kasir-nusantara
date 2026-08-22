@@ -59,8 +59,21 @@ jobs:
         if: steps.versi.outputs.baru == 'true'
         run: cp android/app/build/outputs/apk/debug/app-debug.apk "KasirNusantara-v${{ steps.versi.outputs.versi }}.apk"
 
+      - name: Ambil changelog versi ini dari CHANGELOG.md
+        if: steps.versi.outputs.baru == 'true'
+        run: |
+          VERSI="${{ steps.versi.outputs.versi }}"
+          awk -v v="$VERSI" '
+            $0 ~ ("^## "v"($|[ (])") { p=1; next }
+            /^## / && p { exit }
+            p { print }
+          ' CHANGELOG.md > catatan-rilis.md || true
+          if [ ! -s catatan-rilis.md ]; then
+            echo "Pembaruan v$VERSI — perbaikan dan peningkatan aplikasi." > catatan-rilis.md
+          fi
+
       - name: Buat Release + changelog
         if: steps.versi.outputs.baru == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "v${{ steps.versi.outputs.versi }}" "KasirNusantara-v${{ steps.versi.outputs.versi }}.apk" --title "Versi ${{ steps.versi.outputs.versi }}" --generate-notes
+        run: gh release create "v${{ steps.versi.outputs.versi }}" "KasirNusantara-v${{ steps.versi.outputs.versi }}.apk" --title "Versi ${{ steps.versi.outputs.versi }}" --notes-file catatan-rilis.md

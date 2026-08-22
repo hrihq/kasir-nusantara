@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import { jadwalkanPengingat } from './lib/notif.js'
 import { cekPembaruan, sudahDitunda, besok, bersihkanSisa, kirimNotif, simpanCatatan, VERSI } from './lib/update.js'
-import { pakaiBahasa } from './lib/bahasa.js'
+import { pakaiBahasa, t } from './lib/bahasa.js'
 import PembaruanModal from './components/PembaruanModal.jsx'
 import CatatanRilisModal from './components/CatatanRilisModal.jsx'
 import TabBar from './components/TabBar.jsx'
+import { Modal } from './components/Modal.jsx'
 import KasirPage from './pages/KasirPage.jsx'
 import MenuPage from './pages/MenuPage.jsx'
 import LaporanPage from './pages/LaporanPage.jsx'
@@ -53,14 +54,29 @@ function Halaman() {
   const [keKanan, setKeKanan] = useState(true)
   const [infoUpdate, setInfoUpdate] = useState(null)
   const [rilisBaru, setRilisBaru] = useState(false)
+  // Mode Lite
+  const [mintaKeluar, setMintaKeluar] = useState(false)
+  const [pinKeluar, setPinKeluar] = useState('')
+  const [salahKeluar, setSalahKeluar] = useState(false)
   const tabSebelumnya = useRef(tab)
   const sentuh = useRef(null)
   const pengaturanRef = useRef(pengaturan)
   pengaturanRef.current = pengaturan
+  const modeLite = !!pengaturan.modeLite
+  const urutanTab = modeLite ? ['kasir'] : URUTAN_TAB
 
   useEffect(() => {
     jadwalkanPengingat(!!pengaturan.pengingatAktif, pengaturan.pengingatJam || '18:00')
   }, [pengaturan.pengingatAktif, pengaturan.pengingatJam])
+
+  const prosesInfoRilis = (info) => {
+    if (!info) return
+    simpanCatatan(info.versi, info.catatan)
+    if (!sudahDitunda(pengaturanRef.current)) {
+      kirimNotif(info)
+      setInfoUpdate(info)
+    }
+  }
 
   useEffect(() => {
     bersihkanSisa()
@@ -70,22 +86,41 @@ function Halaman() {
       localStorage.setItem('kasir_versi_terakhir', VERSI)
       if (versiTercatat || ADA_DATA_LAMA) setRilisBaru(true)
     }
-    const t = setTimeout(() => {
-      cekPembaruan().then((info) => {
-        if (!info) return
-        simpanCatatan(info.versi, info.catatan)
-        if (!sudahDitunda(pengaturanRef.current)) {
-          kirimNotif(info)
-          setInfoUpdate(info)
-        }
-      })
-    }, 2500)
+    localStorage.setItem('kasir_cek_terakhir', String(Date.now()))
+    const t = setTimeout(() => cekPembaruan().then(prosesInfoRilis), 2500)
     return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Aplikasi sering tertahan di memori: cek ulang tiap kembali ke layar (maks 1x/jam)
+  useEffect(() => {
+    const periksaLagi = () => {
+      if (document.visibilityState !== 'visible') return
+      if (Date.now() - Number(localStorage.getItem('kasir_cek_terakhir') || 0) < 3600000) return
+      localStorage.setItem('kasir_cek_terakhir', String(Date.now()))
+      cekPembaruan().then(prosesInfoRilis)
+    }
+    document.addEventListener('visibilitychange', periksaLagi)
+    return () => document.removeEventListener('visibilitychange', periksaLagi)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const keluarLite = () => {
+    if (pinKeluar !== (pengaturan.pinKode || '')) {
+      setSalahKeluar(true)
+      return
+    }
+    setPengaturan((s) => ({ ...s, modeLite: false }))
+    setTab('kasir')
+    tabSebelumnya.current = 'kasir'
+    setMintaKeluar(false)
+    setPinKeluar('')
+    setSalahKeluar(false)
+  }
+
   const pindah = (tujuan) => {
-    if (!URUTAN_TAB.includes(tujuan) || tujuan === tabSebelumnya.current) return
-    setKeKanan(URUTAN_TAB.indexOf(tujuan) > URUTAN_TAB.indexOf(tabSebelumnya.current))
+    if (!urutanTab.includes(tujuan) || tujuan === tabSebelumnya.current) return
+    setKeKanan(urutanTab.indexOf(tujuan) > urutanTab.indexOf(tabSebelumnya.current))
     tabSebelumnya.current = tujuan
     setTab(tujuan)
     window.scrollTo({ top: 0 })
@@ -106,13 +141,14 @@ function Halaman() {
   }
 
   const akhirSentuh = (e) => {
-    if (!sentuh.current) return
+    if (!sentuh.current || modeLite) return
     const dx = e.changedTouches[0].clientX - sentuh.current.x
     const dy = e.changedTouches[0].clientY - sentuh.current.y
     sentuh.current = null
     if (Math.abs(dx) < 64 || Math.abs(dy) > 56) return
-    const i = URUTAN_TAB.indexOf(tabSebelumnya.current)
-    const tujuan = URUTAN_TAB[Math.min(URUTAN_TAB.length - 1, Math.max(0, i + (dx < 0 ? 1 : -1)))]
+    const i = urutanTab.indexOf(tabSebelumnya.current)
+    const tujuan =
+      urutanTab[Math.min(urutanTab.length - 1, Math.max(0, i + (dx < 0 ? 1 : -1)))]
     pindah(tujuan)
   }
 
@@ -129,7 +165,62 @@ function Halaman() {
         {tab === 'laporan' && <LaporanPage />}
         {tab === 'atur' && <AturPage />}
       </div>
-      <TabBar tab={tab} setTab={pindah} />
+      {modeLite ? (
+        <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))] layar:pb-6">
+          <button
+            onClick={() => setMintaKeluar(true)}
+            className="bilah-kaca pointer-events-auto flex items-center gap-2 rounded-full px-6 py-3 text-xs font-bold shadow-lg transition active:scale-95"
+            style={{ color: 'var(--teks)' }}
+          >
+            <span aria-hidden="true">🔒</span>
+            {t('Keluar Mode Lite')}
+          </button>
+        </nav>
+      ) : (
+        <TabBar tab={tab} setTab={pindah} />
+      )}
+      <Modal
+        open={mintaKeluar}
+        onClose={() => {
+          setMintaKeluar(false)
+          setPinKeluar('')
+          setSalahKeluar(false)
+        }}
+        judul={t('Keluar Mode Lite')}
+      >
+        <p className="text-sm text-black/55">{t('Masukkan PIN untuk kembali ke mode lengkap.')}</p>
+        <input
+          type="password"
+          inputMode="numeric"
+          value={pinKeluar}
+          onChange={(e) => {
+            setPinKeluar(e.target.value.replace(/\D/g, '').slice(0, 8))
+            setSalahKeluar(false)
+          }}
+          className="input mt-2 text-center tracking-[0.4em]"
+          placeholder="••••"
+        />
+        {salahKeluar && (
+          <p className="mt-2 text-center text-xs font-semibold text-red-500">
+            {t('PIN salah. Coba lagi.')}
+          </p>
+        )}
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => {
+              setMintaKeluar(false)
+              setPinKeluar('')
+              setSalahKeluar(false)
+            }}
+            className="tombol--hantu w-full"
+          >
+            {t('Batal')}
+          </button>
+          <button onClick={keluarLite} disabled={!pinKeluar} className="tombol--utama w-full">
+            {t('Buka')}
+          </button>
+        </div>
+      </Modal>
       <CatatanRilisModal buka={rilisBaru} tutup={() => setRilisBaru(false)} />
       <PembaruanModal
         info={infoUpdate}

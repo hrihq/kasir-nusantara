@@ -9,4 +9,6 @@ export const pengaturanAwal = {
   logo: null,
   ppnAktif: true,
   ppnPersen: 11,
+  kolomMenu: 2,
+  modeLite: false,
 }
