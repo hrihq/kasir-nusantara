@@ -36,7 +36,6 @@
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
     touch-action: manipulation;
-    overflow-x: hidden;
   }
   body {
     @apply font-badan antialiased;
@@ -50,10 +49,11 @@
     -webkit-user-select: none;
     -webkit-touch-callout: none;
     overscroll-behavior: none;
-    overflow-x: hidden;
-    width: 100%;
   }
-  #root {
+  /* Kunci geser horizontal tanpa merusak scroll vertikal.
+     'clip' tidak menciptakan kontainer scroll (beda dengan 'hidden'). */
+  #root,
+  .panggung {
     overflow-x: clip;
   }
   input,
