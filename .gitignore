@@ -18,4 +18,5 @@ android/app/src/main/assets/public/
 .tools/
 
 dev-server.log
-README.md
+
+SPESIFIKASI-*.md
