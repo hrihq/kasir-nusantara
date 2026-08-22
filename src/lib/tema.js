@@ -7,7 +7,6 @@ const URUTAN = ['sistem', 'gelap', 'terang']
 // Tema warna aksen: mengubah --merek-rgb dll lewat data-tema di <html>
 export const TEMA_WARNA = [
   { id: 'klasik', label: 'Klasik', swatch: '#b23b22' },
-  { id: 'batik', label: 'Batik', swatch: '#8a5a2b' },
   { id: 'laut', label: 'Laut', swatch: '#0f7690' },
   { id: 'rimba', label: 'Rimba', swatch: '#3d6e2e' },
 ]

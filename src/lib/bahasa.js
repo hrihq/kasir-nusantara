@@ -237,7 +237,6 @@ const EN = {
 
   // Tema warna
   Klasik: 'Classic',
-  Batik: 'Batik',
   Laut: 'Ocean',
   Rimba: 'Forest',
   'Tema Warna': 'Color Theme',

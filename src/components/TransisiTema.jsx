@@ -19,12 +19,13 @@ export default function TransisiTema({ tampil }) {
         <div className="relative mb-2 h-9">
           <span className="emoji-transisi absolute top-0 text-3xl leading-none">😊</span>
         </div>
-        <div className="h-2.5 overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
-          <div className="bar-transisi h-full rounded-full bg-merek" />
+        {/* Lebar dasar penuh: tetap terlihat walau animasi dimatikan sistem */}
+        <div className="h-2.5 overflow-hidden rounded-full bg-black/15 dark:bg-white/20">
+          <div className="bar-transisi h-full w-full rounded-full bg-merek" />
         </div>
         <p
           className="anim-naik mt-3 text-center text-sm font-semibold tracking-wide"
-          style={{ color: 'var(--teks)', opacity: 0.55 }}
+          style={{ color: 'var(--teks)', opacity: 0.7 }}
         >
           {t('Tunggu sebentar…')}
         </p>

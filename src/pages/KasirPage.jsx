@@ -196,6 +196,8 @@ export default function KasirPage() {
   const [trxTerakhir, setTrxTerakhir] = useState(null)
 
   const kategori = useMemo(() => ['Semua', ...new Set(produk.map((p) => p.kategori))], [produk])
+  const kolomMenu = Number(pengaturan.kolomMenu) || 2
+  const rapat = kolomMenu >= 3 // kolom ≥3 → kartu memadat agar muat di layar sempit
 
   const hasil = useMemo(() => {
     const kunci = q.trim().toLowerCase()
@@ -307,8 +309,10 @@ export default function KasirPage() {
 
       {/* Grid menu — jumlah kolom mengikuti pengaturan pengguna (portrait) */}
       <div
-        className="grid grid-cols-[repeat(var(--kolom),minmax(0,1fr))] gap-3 px-5 pt-3 layar:grid-cols-6 layar:gap-2 layar:px-4 layar:pt-2"
-        style={{ '--kolom': Number(pengaturan.kolomMenu) || 2 }}
+        className={`grid grid-cols-[repeat(var(--kolom),minmax(0,1fr))] px-5 pt-3 layar:grid-cols-6 layar:gap-2 layar:px-4 layar:pt-2 ${
+          rapat ? 'gap-2' : 'gap-3'
+        }`}
+        style={{ '--kolom': kolomMenu }}
       >
         {hasil.map((p) => (
           <button
@@ -316,13 +320,29 @@ export default function KasirPage() {
             onClick={() => tambah(p.id)}
             className="group overflow-hidden rounded-2xl bg-white text-left shadow-kartu transition duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-[.97]"
           >
-            <ProdukAvatar produk={p} className="block aspect-square w-full text-3xl" />
-            <div className="border-t border-black/5 p-3 layar:p-2">
-              <div className="line-clamp-2 min-h-[2.5em] text-sm font-semibold leading-snug layar:min-h-0 layar:text-[11px] layar:leading-tight">{p.nama}</div>
-              <div className="mt-1.5 flex items-center justify-between">
-                <span className="text-sm font-bold text-merek layar:text-xs">{rupiah(p.harga)}</span>
-                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-merek-lembut text-merek transition duration-200 group-hover:bg-merek group-hover:text-white layar:h-5 layar:w-5">
-                  <Ikon nama="plus" className="h-3.5 w-3.5 layar:h-3 layar:w-3" />
+            <ProdukAvatar produk={p} className={`block aspect-square w-full ${rapat ? 'text-xl' : 'text-3xl'}`} />
+            <div className={`border-t border-black/5 ${rapat ? 'p-1.5' : 'p-3'} layar:p-2`}>
+              <div
+                className={
+                  rapat
+                    ? 'line-clamp-1 text-[11px] font-semibold leading-tight'
+                    : 'line-clamp-2 min-h-[2.5em] text-sm font-semibold leading-snug layar:min-h-0 layar:text-[11px] layar:leading-tight'
+                }
+              >
+                {p.nama}
+              </div>
+              <div className="mt-1 flex min-w-0 items-center justify-between gap-1">
+                <span
+                  className={`min-w-0 truncate font-bold text-merek ${rapat ? 'text-[11px]' : 'text-sm layar:text-xs'}`}
+                >
+                  {rupiah(p.harga)}
+                </span>
+                <span
+                  className={`grid shrink-0 place-items-center rounded-full bg-merek-lembut text-merek transition duration-200 group-hover:bg-merek group-hover:text-white ${
+                    rapat ? 'h-5 w-5' : 'h-7 w-7 layar:h-5 layar:w-5'
+                  }`}
+                >
+                  <Ikon nama="plus" className={rapat ? 'h-3 w-3' : 'h-3.5 w-3.5 layar:h-3 layar:w-3'} />
                 </span>
               </div>
             </div>

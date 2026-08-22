@@ -33,42 +33,6 @@
 }
 
 /* ===== TEMA WARNA ===== */
-/* Batik — cokelat sogan & emas khas batik Jawa */
-[data-tema='batik'] {
-  --latar: #f4ead3;
-  --merek-rgb: 138 90 43;
-  --merek-gelap-rgb: 107 68 30;
-  --merek-lembut-rgb: 243 231 210;
-  --krem-rgb: 248 240 226;
-  --krem-tua-rgb: 235 221 195;
-  --tinta-rgb: 43 29 12;
-  --glow-1: rgba(138, 90, 43, 0.09);
-  --glow-2: rgba(196, 154, 74, 0.12);
-}
-[data-tema='batik'] .panggung {
-  position: relative;
-  isolation: isolate;
-}
-/* Motif parang asli dari internet (CC0) — satu bidang penuh menutupi latar,
-   bukan kotak-kotak berulang. Blend multiply membuat latarnya menyatu dengan kertas. */
-[data-tema='batik'] .panggung::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image: url('https://freesvg.org/img/Batik-Parang-Rusak-Seamless-Pattern.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  mix-blend-mode: multiply;
-  opacity: 0.2;
-}
-.dark[data-tema='batik'] .panggung::before {
-  mix-blend-mode: screen;
-  filter: invert(1);
-  opacity: 0.16;
-}
 /* Laut — biru laut dalam */
 [data-tema='laut'] {
   --latar: #eaf1f2;

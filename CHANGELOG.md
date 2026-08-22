@@ -4,6 +4,13 @@ Semua perubahan penting aplikasi Kasir Nusantara dicatat di sini.
 Saat rilis, bagian versi teratas otomatis dipakai sebagai catatan rilis di GitHub
 dan ditampilkan sebagai changelog di dalam aplikasi.
 
+## 1.0.19
+
+- Tema Batik dihapus karena bermasalah — kembali ke Klasik, Laut, Rimba
+- Kolom menu 3–4 kini rapat & rapi di layar sempit (teks dan tombol ikut menyesuaikan)
+- Perbaikan overlay ganti tema yang tadinya tampil gelap tanpa progress bar
+- Efek liquid glass diperhalus
+
 ## 1.0.18
 
 - QRIS dipindah ke Pengaturan & terkunci PIN — tidak mudah diganti orang
