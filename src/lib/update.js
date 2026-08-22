@@ -61,6 +61,17 @@ const blobKeBase64 = (blob) =>
   })
 
 export async function unduhApk(url, onProgres) {
+  if (Capacitor.isNativePlatform()) {
+    const langganan = await PembukaApk.addListener('progres', (d) => {
+      onProgres?.(d.total ? d.terunduh / d.total : 0, d.terunduh)
+    })
+    try {
+      await PembukaApk.unduh({ url, file: NAMA_FILE_APK })
+    } finally {
+      langganan.remove()
+    }
+    return
+  }
   const res = await fetch(url)
   if (!res.ok) throw new Error('Unduhan gagal')
   const total = Number(res.headers.get('content-length')) || 0

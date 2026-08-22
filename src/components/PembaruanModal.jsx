@@ -119,6 +119,14 @@ export default function PembaruanModal({ info, tutup }) {
               {fase === 'gagal' ? 'Coba Lagi' : 'Unduh Sekarang'}
             </button>
           )}
+          {galat && (
+            <button
+              onClick={() => window.open(info.urlUnduh, '_blank')}
+              className="tombol--hantu w-full"
+            >
+              Unduh lewat Browser
+            </button>
+          )}
           {fase === 'mengunduh' && (
             <button disabled className="tombol--utama w-full opacity-60">
               Mengunduh… {persen}%
