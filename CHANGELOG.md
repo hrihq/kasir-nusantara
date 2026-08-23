@@ -4,6 +4,15 @@ Semua perubahan penting aplikasi Kasir Nusantara dicatat di sini.
 Saat rilis, bagian versi teratas otomatis dipakai sebagai catatan rilis di GitHub
 dan ditampilkan sebagai changelog di dalam aplikasi.
 
+## 1.0.24
+
+- Stok habis kini diblokir: tidak bisa dipesan, muncul peringatan
+- Jumlah di keranjang tidak bisa melebihi stok tersedia
+- Angka stok kini pasti berkurang setelah pembelian (perbaikan tipe data stok lama)
+- Tombol keranjang di mode landscape pindah ke samping navbar (tengah kanan)
+- Fix halaman Pengaturan blank/crash (sisa modal PIN QRIS yang terhapus)
+- Kamera scan: cegah overlay tombol play / picture-in-picture native WebView
+
 ## 1.0.23
 
 - Cek pembaruan kini jalan di latar belakang (WorkManager, tiap ~15 menit) + notifikasi otomatis saat ada versi baru

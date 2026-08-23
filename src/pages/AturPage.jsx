@@ -94,12 +94,7 @@ export default function AturPage() {
   const [pesanCek, setPesanCek] = useState(null)
   const [pesanCadangan, setPesanCadangan] = useState(null)
   const [cadanganJalan, setCadanganJalan] = useState(false)
-  // QRIS terkunci PIN
-  const [qrisMintaPin, setQrisMintaPin] = useState(false)
-  const [qrisPin, setQrisPin] = useState('')
-  const [qrisSalah, setQrisSalah] = useState(false)
   const [pesanQris, setPesanQris] = useState(null)
-  const aksiQrisRef = useRef(null)
   const qrisInputRef = useRef(null)
 
   const jalankanEkspor = async () => {
@@ -506,56 +501,6 @@ export default function AturPage() {
           </button>
           <button onClick={konfirmasiMatikan} disabled={!pinMati} className="tombol--utama w-full">
             {t('Matikan')}
-          </button>
-        </div>
-      </Modal>
-
-      {/* Konfirmasi PIN untuk mengubah QRIS */}
-      <Modal
-        open={qrisMintaPin}
-        onClose={() => {
-          setQrisMintaPin(false)
-          setQrisPin('')
-          setQrisSalah(false)
-        }}
-        judul={t('Ganti QRIS')}
-      >
-        <p className="text-sm text-black/55">
-          {t('Masukkan PIN pengelola untuk mengganti QRIS.')}
-        </p>
-        <input
-          type="password"
-          inputMode="numeric"
-          autoFocus
-          value={qrisPin}
-          onChange={(e) => {
-            setQrisPin(e.target.value.replace(/\D/g, '').slice(0, 8))
-            setQrisSalah(false)
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') konfirmasiPinQris()
-          }}
-          placeholder="• • • •"
-          className="input mt-3 text-center text-lg font-bold tracking-[0.5em]"
-        />
-        {qrisSalah && (
-          <p className="mt-2 text-center text-xs font-semibold text-red-500">
-            {t('PIN salah. Coba lagi.')}
-          </p>
-        )}
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <button
-            onClick={() => {
-              setQrisMintaPin(false)
-              setQrisPin('')
-              setQrisSalah(false)
-            }}
-            className="tombol--hantu w-full"
-          >
-            {t('Batal')}
-          </button>
-          <button onClick={konfirmasiPinQris} disabled={!qrisPin} className="tombol--utama w-full">
-            {t('Buka')}
           </button>
         </div>
       </Modal>

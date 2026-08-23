@@ -364,25 +364,48 @@ export default function KasirPage() {
   const total = subtotal + ppnNominal
   const jmlItem = garis.reduce((t, g) => t + g.qty, 0)
 
-  const tambah = (id) =>
+  const stokProduk = (id) => {
+    const p = produk.find((x) => x.id === id)
+    const s = Number(p?.stok)
+    return Number.isFinite(s) && s >= 0 ? s : null // null = tanpa batas
+  }
+
+  const qtyDiKeranjang = (id) => keranjang.find((x) => x.id === id)?.qty || 0
+
+  const tambah = (id) => {
+    const sisa = stokProduk(id)
+    if (sisa !== null && qtyDiKeranjang(id) >= sisa) {
+      setPesanPindai({ ok: false, teks: sisa === 0 ? t('Stok habis — tidak bisa dipesan.') : t('Stok tinggal %s').replace('%s', String(sisa)) })
+      return
+    }
     setKeranjang((k) => {
       const ada = k.find((x) => x.id === id)
       return ada
         ? k.map((x) => (x.id === id ? { ...x, qty: x.qty + 1 } : x))
         : [...k, { id, qty: 1 }]
     })
+  }
 
   const ubahQty = (id, d) =>
     setKeranjang((k) =>
-      k.map((x) => (x.id === id ? { ...x, qty: x.qty + d } : x)).filter((x) => x.qty > 0),
+      k.map((x) => {
+        if (x.id !== id) return x
+        let n = x.qty + d
+        const sisa = stokProduk(id)
+        if (d > 0 && sisa !== null && n > sisa) n = sisa
+        return { ...x, qty: Math.max(0, n) }
+      }).filter((x) => x.qty > 0),
     )
 
   const setQtyLangsung = (id, nilai) =>
     setKeranjang((k) =>
       k.map((x) => {
         if (x.id !== id) return x
-        const n = Math.floor(Number(nilai))
-        return Number.isFinite(n) && n >= 0 ? { ...x, qty: n } : x
+        let n = Math.floor(Number(nilai))
+        if (!Number.isFinite(n)) return x
+        const sisa = stokProduk(id)
+        if (sisa !== null && n > sisa) n = sisa
+        return { ...x, qty: Math.max(0, n) }
       }),
     )
 
@@ -537,10 +560,10 @@ export default function KasirPage() {
         )
       )}
 
-      {/* Batang keranjang mengapung */}
+      {/* Batang keranjang mengapung — portrait di atas navbar, landscape di samping navbar */}
       {jmlItem > 0 && !sheetBuka && !bayarBuka && (
         <div
-          className="fixed left-1/2 z-30 w-full max-w-[398px] -translate-x-1/2 px-4 bottom-[88px] layar:left-[calc((100%-104px)/2)] layar:bottom-6"
+          className="fixed bottom-[88px] left-1/2 z-30 w-full max-w-[398px] -translate-x-1/2 px-4 layar:bottom-auto layar:left-auto layar:right-[calc(max(1rem,env(safe-area-inset-right))+104px)] layar:top-1/2 layar:w-60 layar:max-w-none layar:-translate-y-1/2 layar:translate-x-0 layar:px-0"
         >
           <button
             onClick={() => setSheetBuka(true)}

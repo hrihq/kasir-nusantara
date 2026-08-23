@@ -37,13 +37,14 @@ export function StoreProvider({ children }) {
         shiftId: shiftAktif?.id || null,
       }
 
-      // Kurangi stok produk yang terjual
+      // Kurangi stok produk yang terjual (stok null/undefined/-1 = tanpa batas)
       if (rincian.item) {
         setProduk((ps) =>
           ps.map((p) => {
             const item = rincian.item.find((it) => it.id === p.id)
-            if (item && p.stok > 0) {
-              return { ...p, stok: Math.max(0, p.stok - item.qty) }
+            const s = Number(p.stok)
+            if (item && Number.isFinite(s) && s >= 0) {
+              return { ...p, stok: Math.max(0, Math.round(s) - item.qty) }
             }
             return p
           }),

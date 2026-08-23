@@ -19,8 +19,18 @@ export async function mulaiKamera(videoEl) {
   const stream = await navigator.mediaDevices.getUserMedia({
     video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
   })
+  // Cegah WebView memakai player/PiP native (tombol "play" di layar)
+  videoEl.setAttribute('playsinline', 'true')
+  videoEl.setAttribute('webkit-playsinline', 'true')
+  videoEl.disablePictureInPicture = true
+  videoEl.disableRemotePlayback = true
+  videoEl.muted = true
   videoEl.srcObject = stream
-  await videoEl.play()
+  try {
+    await videoEl.play()
+  } catch {
+    /* autoplay ditolak — video tetap tampil setelah sentuhan */
+  }
   return stream
 }
 

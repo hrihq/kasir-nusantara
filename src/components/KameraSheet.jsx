@@ -63,8 +63,14 @@ export default function KameraSheet({ buka, tutup, onHasil }) {
         ref={videoRef}
         className="h-full w-full object-cover"
         playsInline
+        webkit-playsinline="true"
         muted
         autoPlay
+        disablePictureInPicture
+        disableRemotePlayback
+        controlsList="nodownload noplaybackrate nofullscreen"
+        // eslint-disable-next-line react/no-unknown-property
+        x5-video-player-type="h5-page"
       />
 
       {/* Overlay garis scan */}
