@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf'
 import { Capacitor } from '@capacitor/core'
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
+import { Filesystem, Directory } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 
 const LEBAR_KERTAS = 80 // mm (kertas struk 58mm → lebar A6)
@@ -111,9 +111,14 @@ export async function cetakStrukPdf(trx, pengaturan) {
       data: base64,
       directory: Directory.Cache,
     })
+    // Dapatkan content:// URI untuk share
+    const fileUri = await Filesystem.getUri({
+      path: namaFile,
+      directory: Directory.Cache,
+    })
     await Share.share({
       title: 'Struk Kasir Nusantara',
-      files: [`cache/${namaFile}`],
+      files: [fileUri.uri],
     })
   } else {
     // Web: unduh langsung

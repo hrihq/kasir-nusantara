@@ -1,14 +1,37 @@
 import { useEffect, useState } from 'react'
 
+const CEK_URL = 'https://www.gstatic.com/generate_204'
+const INTERVAL = 8000
+
+async function cekKoneksi() {
+  try {
+    const res = await fetch(CEK_URL, { mode: 'no-cors', cache: 'no-store' })
+    return true
+  } catch {
+    return false
+  }
+}
+
 export default function KoneksiIndicator() {
   const [online, setOnline] = useState(navigator.onLine)
 
   useEffect(() => {
-    const on = () => setOnline(true)
+    // Cek langsung saat mount
+    cekKoneksi().then(setOnline)
+
+    const interval = setInterval(async () => {
+      const hasil = await cekKoneksi()
+      setOnline(hasil)
+    }, INTERVAL)
+
+    // Dengarkan event bawaan juga
+    const on = () => cekKoneksi().then(setOnline)
     const off = () => setOnline(false)
     window.addEventListener('online', on)
     window.addEventListener('offline', off)
+
     return () => {
+      clearInterval(interval)
       window.removeEventListener('online', on)
       window.removeEventListener('offline', off)
     }

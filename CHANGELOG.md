@@ -4,6 +4,16 @@ Semua perubahan penting aplikasi Kasir Nusantara dicatat di sini.
 Saat rilis, bagian versi teratas otomatis dipakai sebagai catatan rilis di GitHub
 dan ditampilkan sebagai changelog di dalam aplikasi.
 
+## 1.0.22
+
+- Fix bagikan struk: gunakan content:// URI agar share sheet muncul di semua perangkat
+- Indikator koneksi: cek fetch ke server beneran (bukan cuma navigator.onLine)
+- Tombol keranjang di kasir kini sticky di bawah — ikut scroll, tidak hilang di mode landscape
+- Diskon terkunci PIN — akses manajemen diskon butuh PIN seperti QRIS
+- UI pilih member & diskon diganti: bottom sheet custom dengan pencarian (bukan select dropdown)
+- Tambah member via KTP: ketik NIK, nama & alamat otomatis terisi (simulasi)
+- Tap kartu NFC untuk daftar diskon otomatis (simulasi)
+
 ## 1.0.21
 
 - Manajemen diskon: persen/nominal, berlaku untuk semua item, per kategori, atau per produk, minimal pembelian

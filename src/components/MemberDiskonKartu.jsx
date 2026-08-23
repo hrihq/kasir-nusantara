@@ -4,16 +4,43 @@ import { rupiah } from '../lib/format.js'
 import { t } from '../lib/bahasa.js'
 import Ikon from './Ikon.jsx'
 import { Modal } from './Modal.jsx'
+import KtpNfcSheet from './KtpNfcSheet.jsx'
 
 export default function MemberDiskonKartu() {
-  const { members, setMembers, diskonList, setDiskonList, produk } = useStore()
+  const { members, setMembers, diskonList, setDiskonList, produk, pengaturan } = useStore()
   const [tab, setTab] = useState(null)
   const [fm, setFm] = useState({ nama: '', telepon: '', diskonPersen: '' })
   const [fd, setFd] = useState({ nama: '', tipe: 'persen', nilai: '', berlakuUntuk: 'semua', targetId: '', minPembelian: '' })
   const [editId, setEditId] = useState(null)
   const [cari, setCari] = useState('')
+  const [pinInput, setPinInput] = useState('')
+  const [pinSalah, setPinSalah] = useState(false)
+  const [aksiTerkunci, setAksiTerkunci] = useState(null)
+  const [sheetKtpNfc, setSheetKtpNfc] = useState(false)
 
   const kategoriList = [...new Set(produk.map((p) => p.kategori))]
+  const pinTersimpan = pengaturan?.pin
+
+  const bukaDenganPin = (aksi) => {
+    if (pinTersimpan) {
+      setAksiTerkunci(aksi)
+      setPinInput('')
+      setPinSalah(false)
+      return
+    }
+    setTab(aksi)
+  }
+
+  const verifikasiPin = () => {
+    if (pinInput !== pinTersimpan) {
+      setPinSalah(true)
+      return
+    }
+    setTab(aksiTerkunci)
+    setAksiTerkunci(null)
+    setPinInput('')
+    setPinSalah(false)
+  }
 
   const simpanMember = () => {
     const nama = fm.nama.trim()
@@ -49,18 +76,39 @@ export default function MemberDiskonKartu() {
 
   return (
     <>
-      <div className="kartu mx-5 mt-4">
+      <div className="kartu mx-5 mt-4 space-y-2">
         <div className="grid grid-cols-2 gap-2">
-          <button onClick={() => { setTab('member'); setEditId(null); setCari('') }} className="tombol !py-2.5 text-xs ring-1 ring-black/10 hover:bg-krem-tua">
+          <button onClick={() => { setEditId(null); setCari(''); bukaDenganPin('member') }} className="tombol !py-2.5 text-xs ring-1 ring-black/10 hover:bg-krem-tua">
             <Ikon nama="kunci" className="mr-1 inline h-3.5 w-3.5" />
             {t('Member')} ({members.length})
           </button>
-          <button onClick={() => { setTab('diskon'); setEditId(null) }} className="tombol !py-2.5 text-xs ring-1 ring-black/10 hover:bg-krem-tua">
+          <button onClick={() => { setEditId(null); bukaDenganPin('diskon') }} className="tombol !py-2.5 text-xs ring-1 ring-black/10 hover:bg-krem-tua">
             <Ikon nama="grafik" className="mr-1 inline h-3.5 w-3.5" />
             {t('Diskon')} ({diskonList.length})
           </button>
         </div>
+        <button onClick={() => setSheetKtpNfc(true)} className="tombol w-full items-center justify-center gap-2 !py-2.5 text-xs ring-1 ring-black/10 hover:bg-krem-tua">
+          <Ikon nama="bluetooth" className="h-3.5 w-3.5" />
+          {t('Tambah via KTP / NFC')}
+        </button>
       </div>
+
+      <KtpNfcSheet open={sheetKtpNfc} onClose={() => setSheetKtpNfc(false)} />
+
+      {/* Modal PIN */}
+      <Modal open={!!aksiTerkunci} onClose={() => setAksiTerkunci(null)} judul={t('Masukkan PIN')}>
+        <div className="space-y-3">
+          <div>
+            <span className="label">{t('PIN akses')}</span>
+            <input type="password" inputMode="numeric" maxLength={6} className="input text-center text-lg tracking-[0.3em]" value={pinInput} onChange={(e) => { setPinInput(e.target.value.replace(/\D/g, '')); setPinSalah(false) }} placeholder="••••" autoFocus />
+          </div>
+          {pinSalah && <p className="text-center text-xs font-semibold text-red-500">{t('PIN salah.')}</p>}
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setAksiTerkunci(null)} className="tombol--hantu w-full">{t('Batal')}</button>
+            <button onClick={verifikasiPin} disabled={!pinInput} className="tombol--utama w-full">{t('Buka')}</button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Modal Member */}
       <Modal open={tab === 'member'} onClose={() => setTab(null)} judul={t('Manajemen Member')}>

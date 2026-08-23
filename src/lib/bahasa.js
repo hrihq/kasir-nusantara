@@ -389,6 +389,32 @@ const EN = {
   'Hapus member ini?': 'Delete this member?',
   Diskon: 'Discount',
   'Tutup': 'Close',
+  'Cari': 'Search',
+  'Tidak ditemukan.': 'Not found.',
+
+  // KTP & NFC
+  'Tambah via KTP / NFC': 'Add via KTP / NFC',
+  'Tambah Member': 'Add Member',
+  'Daftar via KTP': 'Register via KTP',
+  'Ketik NIK, nama otomatis terisi': 'Type NIK, name auto-fills',
+  'Tap Kartu NFC': 'Tap NFC Card',
+  'Tap kartu untuk daftar diskon otomatis': 'Tap card to register auto-discount',
+  'NIK (16 digit)': 'NIK (16 digits)',
+  'Nama Lengkap': 'Full Name',
+  Alamat: 'Address',
+  'Otomatis terisi dari KTP': 'Auto-filled from KTP',
+  'Simpan Member': 'Save Member',
+  'Tap Kartu Sekarang': 'Tap Card Now',
+  'Kartu terdeteksi!': 'Card detected!',
+  'Tanpa diskon': 'No discount',
+  'Simpan Kartu': 'Save Card',
+  'Member berhasil ditambahkan.': 'Member added successfully.',
+  'Kartu NFC terdaftar.': 'NFC card registered.',
+  'Kembali': 'Back',
+  'PIN akses': 'Access PIN',
+  'Buka': 'Open',
+  'Pilih Member': 'Select Member',
+  'Pilih Diskon': 'Select Discount',
 }
 
 export function t(teks) {

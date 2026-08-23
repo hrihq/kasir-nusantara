@@ -8,6 +8,7 @@ import Ikon from '../components/Ikon.jsx'
 import ProdukAvatar from '../components/ProdukAvatar.jsx'
 import { Modal } from '../components/Modal.jsx'
 import { StrukModal } from '../components/StrukModal.jsx'
+import { PilihSheet } from '../components/PilihSheet.jsx'
 import PesanPudar from '../components/PesanPudar.jsx'
 import KameraSheet from '../components/KameraSheet.jsx'
 import KoneksiIndicator from '../components/KoneksiIndicator.jsx'
@@ -63,6 +64,8 @@ function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, gar
   const [bayar, setBayar] = useState('')
   const [memberId, setMemberId] = useState('')
   const [diskonId, setDiskonId] = useState('')
+  const [sheetMember, setSheetMember] = useState(false)
+  const [sheetDiskon, setSheetDiskon] = useState(false)
 
   // Hitung diskon
   const diskonTerpilih = diskonList.find((d) => d.id === diskonId && d.aktif)
@@ -153,27 +156,63 @@ function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, gar
       {/* Pilih Member */}
       <div className="mt-3">
         <span className="label">{t('Member (opsional)')}</span>
-        <select className="input" value={memberId} onChange={(e) => setMemberId(e.target.value)}>
-          <option value="">{t('Tanpa member')}</option>
-          {members.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.nama}{m.diskonPersen > 0 ? ` (${m.diskonPersen}% off)` : ''}
-            </option>
-          ))}
-        </select>
+        <button
+          onClick={() => setSheetMember(true)}
+          className="input flex items-center justify-between text-left"
+        >
+          <span className={memberTerpilih ? '' : 'text-black/40'}>
+            {memberTerpilih ? memberTerpilih.nama : t('Tanpa member')}
+          </span>
+          <Ikon nama="chevron" className="h-4 w-4 shrink-0 text-black/30" />
+        </button>
+        <PilihSheet
+          open={sheetMember}
+          onClose={() => setSheetMember(false)}
+          judul={t('Pilih Member')}
+          items={[
+            { id: '', label: t('Tanpa member'), sub: '' },
+            ...members.map((m) => ({
+              id: m.id,
+              label: m.nama,
+              sub: m.telepon || '',
+              badge: m.diskonPersen > 0 ? `${m.diskonPersen}% off` : null,
+            })),
+          ]}
+          terpilih={memberId}
+          onSelect={setMemberId}
+          kosong={t('Belum ada member.')}
+        />
       </div>
 
       {/* Pilih Diskon */}
       <div className="mt-2">
         <span className="label">{t('Diskon Tambahan')}</span>
-        <select className="input" value={diskonId} onChange={(e) => setDiskonId(e.target.value)}>
-          <option value="">{t('Tanpa diskon')}</option>
-          {diskonList.filter((d) => d.aktif).map((d) => (
-            <option key={d.id} value={d.id}>
-              {d.nama} — {d.tipe === 'persen' ? `${d.nilai}%` : rupiah(d.nilai)}
-            </option>
-          ))}
-        </select>
+        <button
+          onClick={() => setSheetDiskon(true)}
+          className="input flex items-center justify-between text-left"
+        >
+          <span className={diskonTerpilih ? '' : 'text-black/40'}>
+            {diskonTerpilih ? `${diskonTerpilih.nama} — ${diskonTerpilih.tipe === 'persen' ? `${diskonTerpilih.nilai}%` : rupiah(diskonTerpilih.nilai)}` : t('Tanpa diskon')}
+          </span>
+          <Ikon nama="chevron" className="h-4 w-4 shrink-0 text-black/30" />
+        </button>
+        <PilihSheet
+          open={sheetDiskon}
+          onClose={() => setSheetDiskon(false)}
+          judul={t('Pilih Diskon')}
+          items={[
+            { id: '', label: t('Tanpa diskon'), sub: '' },
+            ...diskonList.filter((d) => d.aktif).map((d) => ({
+              id: d.id,
+              label: d.nama,
+              sub: d.berlakuUntuk === 'semua' ? t('Semua item') : `${d.berlakuUntuk}: ${d.targetId}`,
+              badge: d.tipe === 'persen' ? `${d.nilai}%` : rupiah(d.nilai),
+            })),
+          ]}
+          terpilih={diskonId}
+          onSelect={setDiskonId}
+          kosong={t('Belum ada diskon.')}
+        />
       </div>
 
       <div className="mt-4">
@@ -501,10 +540,8 @@ export default function KasirPage() {
       {/* Batang keranjang mengapung */}
       {jmlItem > 0 && !sheetBuka && !bayarBuka && (
         <div
-          className={`fixed left-1/2 z-30 w-full max-w-[398px] -translate-x-1/2 px-4 layar:left-[calc((100%-104px)/2)] ${
-            pengaturan.modeLite
-              ? 'bottom-[84px] layar:bottom-[74px]'
-              : 'bottom-[96px] layar:bottom-6'
+          className={`fixed bottom-0 left-0 z-30 w-full px-4 pb-3 pt-1 sm:left-1/2 sm:max-w-[398px] sm:-translate-x-1/2 sm:px-0 sm:pb-4 sm:pt-0 ${
+            pengaturan.modeLite ? 'layar:left-[calc((100%-104px)/2)]' : ''
           }`}
         >
           <button
