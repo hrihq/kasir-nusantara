@@ -8,6 +8,8 @@ import Ikon from '../components/Ikon.jsx'
 import ProdukAvatar from '../components/ProdukAvatar.jsx'
 import { Modal } from '../components/Modal.jsx'
 import { StrukModal } from '../components/StrukModal.jsx'
+import PesanPudar from '../components/PesanPudar.jsx'
+import { dukungPemindai, pindaiBarcode } from '../lib/pemindai.js'
 
 function BarisRingkas({ label, nilai }) {
   return (
@@ -194,6 +196,36 @@ export default function KasirPage() {
   const [sheetBuka, setSheetBuka] = useState(false)
   const [bayarBuka, setBayarBuka] = useState(false)
   const [trxTerakhir, setTrxTerakhir] = useState(null)
+  const [pesanPindai, setPesanPindai] = useState(null)
+  const [pindaiJalan, setPindaiJalan] = useState(false)
+
+  const mulaiPindai = async () => {
+    if (pindaiJalan) return
+    setPindaiJalan(true)
+    setPesanPindai(null)
+    try {
+      const hasil = await pindaiBarcode()
+      const kode = (hasil?.rawValue || hasil?.displayValue || '').trim()
+      if (!kode) return
+      const p = produk.find((x) => x.kode && x.kode === kode)
+      if (p) {
+        tambah(p.id)
+        navigator.vibrate?.(30)
+        setQ('')
+        setKat('Semua')
+      } else {
+        // Tidak cocok → tampilkan kode di pencarian agar terlihat
+        setQ(kode)
+        setPesanPindai({
+          ok: false,
+          teks: `${t('Tidak ada menu dengan barcode:')} ${kode}`,
+        })
+      }
+    } catch {
+      /* dibatalkan pengguna / izin ditolak */
+    }
+    setPindaiJalan(false)
+  }
 
   const kategori = useMemo(() => ['Semua', ...new Set(produk.map((p) => p.kategori))], [produk])
   const kolomMenu = Number(pengaturan.kolomMenu) || 2
@@ -286,9 +318,24 @@ export default function KasirPage() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder={t('Cari menu…')}
-              className="input pl-10 text-tinta"
+              className="input pl-10 pr-12 text-tinta"
             />
+            {dukungPemindai() && (
+              <button
+                onClick={mulaiPindai}
+                disabled={pindaiJalan}
+                aria-label={t('Pindai Barcode')}
+                className="absolute right-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl bg-merek text-white transition active:scale-90"
+              >
+                <Ikon nama="pindai" className="h-[18px] w-[18px]" />
+              </button>
+            )}
           </div>
+          {pesanPindai && (
+            <div className="mt-2">
+              <PesanPudar pesan={pesanPindai} onSelesai={() => setPesanPindai(null)} />
+            </div>
+          )}
         </div>
       </header>
 

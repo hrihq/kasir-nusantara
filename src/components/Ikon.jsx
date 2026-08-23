@@ -79,6 +79,15 @@ const JALUR = {
       <path d="M12 16.9v1.6" />
     </>
   ),
+  pindai: (
+    <>
+      <path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" />
+      <path d="M4 12h16" />
+    </>
+  ),
+  bluetooth: (
+    <path d="m7 7 10 10-5 4V3l5 4L7 17" />
+  ),
 }
 
 export default function Ikon({ nama, className = 'h-5 w-5' }) {

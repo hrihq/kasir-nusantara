@@ -9,6 +9,7 @@ import { t, pakaiBahasa } from '../lib/bahasa.js'
 import { izinNotifikasi, jadwalkanPengingat } from '../lib/notif.js'
 import PageHeader from '../components/PageHeader.jsx'
 import TransisiTema from '../components/TransisiTema.jsx'
+import PrinterKartu from '../components/PrinterKartu.jsx'
 import Ikon from '../components/Ikon.jsx'
 import PesanPudar from '../components/PesanPudar.jsx'
 import PembaruanModal from '../components/PembaruanModal.jsx'
@@ -773,12 +774,15 @@ export default function AturPage() {
         {pesanCek && <PesanPudar pesan={pesanCek} onSelesai={() => setPesanCek(null)} />}
       </div>
 
+      {/* Printer Bluetooth */}
+      <PrinterKartu />
+
       {/* Zona data */}
       <div className="kartu mx-5 mt-4 space-y-2.5">
         <h2 className="text-sm font-bold">Cadangkan &amp; Pulihkan</h2>
         <p className="text-xs text-black/45">
-          Simpan satu berkas cadangan berisi produk, transaksi, dan pengaturan. Wajib dilakukan
-          sebelum ganti atau hapus aplikasi.
+          Data juga dicerminkan otomatis ke folder Documents tiap beberapa detik, jadi aman jika
+          aplikasi dibersihkan sistem. Ekspor cadangan manual sebelum ganti atau hapus aplikasi.
         </p>
         <button
           onClick={jalankanEkspor}

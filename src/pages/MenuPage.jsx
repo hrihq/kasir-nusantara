@@ -8,7 +8,7 @@ import Ikon from '../components/Ikon.jsx'
 import ProdukAvatar from '../components/ProdukAvatar.jsx'
 import { Modal } from '../components/Modal.jsx'
 
-const KOSONG = { nama: '', harga: '', kategori: '', baru: '', gambar: null }
+const KOSONG = { nama: '', harga: '', kategori: '', baru: '', kode: '', gambar: null }
 
 export default function MenuPage() {
   const { produk, setProduk, setKeranjang, pengaturan } = useStore()
@@ -71,7 +71,7 @@ export default function MenuPage() {
 
   const bukaEdit = (p) => {
     setSedangEdit(p)
-    setForm({ nama: p.nama, harga: String(p.harga), kategori: p.kategori, baru: '', gambar: p.gambar || null })
+    setForm({ nama: p.nama, harga: String(p.harga), kategori: p.kategori, baru: '', kode: p.kode || '', gambar: p.gambar || null })
     setFormBuka(true)
   }
 
@@ -91,17 +91,18 @@ export default function MenuPage() {
     const nama = form.nama.trim()
     const harga = Math.round(Number(form.harga))
     const kategori = (form.kategori === '__baru__' ? form.baru : form.kategori).trim()
+    const kode = form.kode.trim()
     if (!nama || !(harga > 0) || !kategori) return
 
     if (sedangEdit) {
       setProduk((ps) =>
         ps.map((p) =>
-          p.id === sedangEdit.id ? { ...p, nama, harga, kategori, gambar: form.gambar } : p,
+          p.id === sedangEdit.id ? { ...p, nama, harga, kategori, kode: kode || undefined, gambar: form.gambar } : p,
         ),
       )
     } else {
       setProduk((ps) => [
-        { id: buatId(), nama, harga, kategori, gambar: form.gambar },
+        { id: buatId(), nama, harga, kategori, kode: kode || undefined, gambar: form.gambar },
         ...ps,
       ])
     }
@@ -220,6 +221,19 @@ export default function MenuPage() {
               onChange={(e) => setForm((f) => ({ ...f, harga: e.target.value }))}
               placeholder="15000"
             />
+          </div>
+
+          <div>
+            <span className="label">{t('Kode Barcode')}</span>
+            <input
+              className="input"
+              value={form.kode}
+              onChange={(e) => setForm((f) => ({ ...f, kode: e.target.value }))}
+              placeholder={t('cth. 8991234567890')}
+            />
+            <p className="mt-1 text-[11px] text-black/35">
+              {t('Opsional — pindai barcode barang di halaman Kasir untuk langsung masuk keranjang.')}
+            </p>
           </div>
 
           <div>

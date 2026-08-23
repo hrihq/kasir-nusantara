@@ -290,6 +290,35 @@ const EN = {
 
   // Lainnya
   'Hapus pengeluaran': 'Delete expense',
+
+  // Printer Bluetooth & pemindai barcode
+  'Printer Thermal': 'Thermal Printer',
+  'Cetak struk langsung lewat Bluetooth.':
+    'Print receipts directly via Bluetooth.',
+  'Tersambung:': 'Connected:',
+  'Tersambung ke': 'Connected to',
+  Sambungkan: 'Connect',
+  Sambung: 'Pair',
+  'Uji Cetak': 'Test Print',
+  'Struk uji tercetak.': 'Test receipt printed.',
+  'Putuskan Printer': 'Disconnect Printer',
+  'Cari Printer Bluetooth': 'Find Bluetooth Printer',
+  'Nyalakan printer lalu pastikan mode Bluetooth pairing aktif.':
+    'Turn on the printer and make sure Bluetooth pairing mode is active.',
+  'Mencari perangkat…': 'Searching for devices…',
+  'Menyambung…': 'Connecting…',
+  'Gagal memindai Bluetooth:': 'Bluetooth scan failed:',
+  'Gagal menyambungkan:': 'Failed to connect:',
+  'Gagal mencetak:': 'Print failed:',
+  'Cetak ke Bluetooth': 'Print via Bluetooth',
+  'Pindai Barcode': 'Scan Barcode',
+  'Tidak ada menu dengan barcode:': 'No item with barcode:',
+
+  // Kode barcode menu
+  'Kode Barcode': 'Barcode Code',
+  'cth. 8991234567890': 'e.g. 8991234567890',
+  'Opsional — pindai barcode barang di halaman Kasir untuk langsung masuk keranjang.':
+    'Optional — scan the product barcode on the Cashier page to add it straight to the cart.',
 }
 
 export function t(teks) {

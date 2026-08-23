@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { jadwalkanCermin } from './cermin.js'
 
 export function useLocalStorage(kunci, awal) {
   const [nilai, setNilai] = useState(() => {
@@ -13,6 +14,7 @@ export function useLocalStorage(kunci, awal) {
   useEffect(() => {
     try {
       localStorage.setItem(kunci, JSON.stringify(nilai))
+      jadwalkanCermin()
     } catch {
       /* penyimpanan penuh — abaikan */
     }

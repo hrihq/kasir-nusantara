@@ -26,6 +26,21 @@ const ubahTunda = (setPengaturan) =>
   setPengaturan((s) => ({ ...s, tundaUpdateSampai: besok() }))
 
 function Splash({ tutup }) {
+  const [progres, setProgres] = useState(0)
+  useEffect(() => {
+    const mulai = Date.now()
+    // Samakan dengan jadwal splash di App: fade-out mulai 1050 ms
+    const durasi = 1000
+    let raf
+    const tick = () => {
+      const berlalu = Date.now() - mulai
+      setProgres(Math.min(100, Math.round((berlalu / durasi) * 100)))
+      if (berlalu < durasi) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
   return (
     <div
       className={`fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6 ${
@@ -42,8 +57,19 @@ function Splash({ tutup }) {
           Kelola warungmu dengan mudah
         </p>
       </div>
-      <div className="h-1 w-44 overflow-hidden rounded-full" style={{ background: 'var(--garis)' }}>
-        <div className="anim-pemuat h-full w-1/2 rounded-full bg-merek" />
+      <div className="w-56 max-w-[70vw]">
+        <div className="h-2.5 overflow-hidden rounded-full" style={{ background: 'var(--garis)' }}>
+          <div
+            className="h-full rounded-full bg-merek transition-none"
+            style={{ width: `${progres}%` }}
+          />
+        </div>
+        <p
+          className="mt-2 text-center text-xs font-semibold"
+          style={{ color: 'var(--teks)', opacity: 0.45 }}
+        >
+          {progres}%
+        </p>
       </div>
     </div>
   )

@@ -4,6 +4,15 @@ Semua perubahan penting aplikasi Kasir Nusantara dicatat di sini.
 Saat rilis, bagian versi teratas otomatis dipakai sebagai catatan rilis di GitHub
 dan ditampilkan sebagai changelog di dalam aplikasi.
 
+## 1.0.20
+
+- Cetak struk langsung ke printer thermal Bluetooth (EPPOS, Codesoft, Xprinter, dll) — sambungkan di Pengaturan, uji cetak, lalu cetak tiap selesai transaksi
+- Pindai barcode lewat kamera: ketuk ikon pemindai di halaman Kasir, barang dengan kode yang cocok langsung masuk keranjang
+- Kode barcode bisa diisi saat menambah/mengedit menu
+- Data kini dicerminkan otomatis ke folder Documents — tetap ada meski aplikasi dibersihkan sistem, dipulihkan sendiri saat aplikasi dibuka
+- Terasa makin native: zoom cubit dimatikan, pull-to-refresh & efek bounce browser dimatikan
+- Splash screen kini punya progress bar persen
+
 ## 1.0.19
 
 - Tema Batik dihapus karena bermasalah — kembali ke Klasik, Laut, Rimba
