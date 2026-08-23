@@ -4,8 +4,8 @@ import { Filesystem, Directory } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 
 const LEBAR_KERTAS = 80 // mm (kertas struk 58mm → lebar A6)
+const TINGGI = 200
 const MARGIN = 4
-const LEBAR_TEKS = LEBAR_KERTAS - MARGIN * 2
 
 const rupiah = (n) => 'Rp' + new Intl.NumberFormat('id-ID').format(Math.round(Number(n) || 0))
 
@@ -37,7 +37,12 @@ function garis(doc, y) {
 }
 
 export async function cetakStrukPdf(trx, pengaturan) {
-  const doc = new jsPDF({ unit: 'mm', format: [LEBAR_KERTAS, 200] })
+  // Pakai A6 landscape sebagai dasar (105 x 148mm), kita potong nanti
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a6',
+  })
 
   let y = MARGIN + 4
 
@@ -98,20 +103,24 @@ export async function cetakStrukPdf(trx, pengaturan) {
   // Footer
   y = tambahBaris(doc, y, '-- Kasir Nusantara --', { tengah: true, ukuran: 7 })
 
-  // Potong kertas sesuai konten aktual
-  doc.internal.pageSize.height = y + MARGIN + 4
-
   // Simpan & bagikan
   const namaFile = `struk-${trx.no.replace(/\//g, '-')}.pdf`
 
   if (Capacitor.isNativePlatform()) {
-    const base64 = doc.output('datauristring').split(',')[1]
+    // output sebagai ArrayBuffer, convert ke base64
+    const arrayBuffer = doc.output('arraybuffer')
+    const bytes = new Uint8Array(arrayBuffer)
+    let binary = ''
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i])
+    }
+    const base64 = btoa(binary)
+
     await Filesystem.writeFile({
       path: namaFile,
       data: base64,
       directory: Directory.Cache,
     })
-    // Dapatkan content:// URI untuk share
     const fileUri = await Filesystem.getUri({
       path: namaFile,
       directory: Directory.Cache,
@@ -121,7 +130,6 @@ export async function cetakStrukPdf(trx, pengaturan) {
       files: [fileUri.uri],
     })
   } else {
-    // Web: unduh langsung
     doc.save(namaFile)
   }
 }

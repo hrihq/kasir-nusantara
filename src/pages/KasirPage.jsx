@@ -540,9 +540,7 @@ export default function KasirPage() {
       {/* Batang keranjang mengapung */}
       {jmlItem > 0 && !sheetBuka && !bayarBuka && (
         <div
-          className={`fixed bottom-0 left-0 z-30 w-full px-4 pb-3 pt-1 sm:left-1/2 sm:max-w-[398px] sm:-translate-x-1/2 sm:px-0 sm:pb-4 sm:pt-0 ${
-            pengaturan.modeLite ? 'layar:left-[calc((100%-104px)/2)]' : ''
-          }`}
+          className="fixed left-1/2 z-30 w-full max-w-[398px] -translate-x-1/2 px-4 bottom-[88px] layar:left-[calc((100%-104px)/2)] layar:bottom-6"
         >
           <button
             onClick={() => setSheetBuka(true)}

@@ -3,9 +3,11 @@ import { useStore } from '../context/StoreContext.jsx'
 import { rupiah, buatId } from '../lib/format.js'
 import { bacaGambarKecil } from '../lib/gambar.js'
 import { t } from '../lib/bahasa.js'
+import { dukungPemindai } from '../lib/pemindai.js'
 import PageHeader from '../components/PageHeader.jsx'
 import Ikon from '../components/Ikon.jsx'
 import ProdukAvatar from '../components/ProdukAvatar.jsx'
+import KameraSheet from '../components/KameraSheet.jsx'
 import { Modal } from '../components/Modal.jsx'
 
 const KOSONG = { nama: '', harga: '', kategori: '', baru: '', kode: '', stok: '', stokMinimum: '', gambar: null }
@@ -19,6 +21,7 @@ export default function MenuPage() {
   const [pinMasuk, setPinMasuk] = useState('')
   const [pinSalah, setPinSalah] = useState(false)
   const [aksiTunda, setAksiTunda] = useState(null)
+  const [kameraBuka, setKameraBuka] = useState(false)
 
   const pinBenar = pengaturan.pinKode || ''
 
@@ -50,6 +53,13 @@ export default function MenuPage() {
     setAksiTunda(null)
     setPinMasuk('')
     setPinSalah(false)
+  }
+
+  const onHasilScan = (hasil) => {
+    const kode = (hasil?.value || '').trim()
+    if (!kode) return
+    setForm((f) => ({ ...f, kode }))
+    setKameraBuka(false)
   }
 
   const kategoriAda = useMemo(() => [...new Set(produk.map((p) => p.kategori))], [produk])
@@ -227,14 +237,25 @@ export default function MenuPage() {
 
           <div>
             <span className="label">{t('Kode Barcode')}</span>
-            <input
-              className="input"
-              value={form.kode}
-              onChange={(e) => setForm((f) => ({ ...f, kode: e.target.value }))}
-              placeholder={t('cth. 8991234567890')}
-            />
+            <div className="relative">
+              <input
+                className="input pr-10"
+                value={form.kode}
+                onChange={(e) => setForm((f) => ({ ...f, kode: e.target.value }))}
+                placeholder={t('cth. 8991234567890')}
+              />
+              {dukungPemindai() && (
+                <button
+                  type="button"
+                  onClick={() => setKameraBuka(true)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded-lg bg-merek text-white"
+                >
+                  <Ikon nama="pindai" className="h-4 w-4" />
+                </button>
+              )}
+            </div>
             <p className="mt-1 text-[11px] text-black/35">
-              {t('Opsional — pindai barcode barang di halaman Kasir untuk langsung masuk keranjang.')}
+              {t('Pindai barcode untuk isi otomatis.')}
             </p>
           </div>
 
@@ -337,6 +358,8 @@ export default function MenuPage() {
           </button>
         </div>
       </Modal>
+
+      <KameraSheet buka={kameraBuka} tutup={() => setKameraBuka(false)} onHasil={onHasilScan} />
     </div>
   )
 }

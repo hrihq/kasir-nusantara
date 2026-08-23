@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useStore } from '../context/StoreContext.jsx'
 import { t } from '../lib/bahasa.js'
 import Ikon from './Ikon.jsx'
@@ -6,18 +6,31 @@ import { Modal } from './Modal.jsx'
 
 export default function KtpNfcSheet({ open, onClose }) {
   const { setMembers, diskonList } = useStore()
-  const [mode, setMode] = useState(null) // null | 'ktp' | 'nfc'
+  const [mode, setMode] = useState(null)
   const [formKtp, setFormKtp] = useState({ nik: '', nama: '', alamat: '' })
   const [formNfc, setFormNfc] = useState({ kartuId: '', diskonId: '' })
   const [pesan, setPesan] = useState(null)
-  const [nfcDibaca, setNfcDibaca] = useState(false)
+  const [nfcStatus, setNfcStatus] = useState('idle')
+  const timerRef = useRef(null)
 
-  // Simulasi baca KTP — ketik NIK lalu nama otomatis terisi
+  useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [])
+
+  // Reset saat modal buka
+  useEffect(() => {
+    if (open) {
+      setMode(null)
+      setNfcStatus('idle')
+      setFormNfc({ kartuId: '', diskonId: '' })
+      setPesan(null)
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [open])
+
   const simulasiKtp = () => {
     if (!formKtp.nik || formKtp.nik.length < 10) return
-    // Simulasi data KTP dari NIK
-    const namaSimulasi = 'Pelanggan ' + formKtp.nik.slice(-4)
-    setFormKtp((f) => ({ ...f, nama: namaSimulasi, alamat: 'Alamat dari KTP' }))
+    setFormKtp((f) => ({ ...f, nama: 'Pelanggan ' + f.nik.slice(-4), alamat: 'Alamat dari KTP' }))
   }
 
   const simpanMember = () => {
@@ -38,11 +51,21 @@ export default function KtpNfcSheet({ open, onClose }) {
     setTimeout(() => { setPesan(null); onClose() }, 1500)
   }
 
-  // Simulasi NFC — ketuk kartu, dapat ID, pilih diskon
-  const simulasiNfc = () => {
-    setNfcDibaca(true)
-    setFormNfc({ kartuId: 'NFC-' + Date.now().toString(36).slice(-6).toUpperCase(), diskonId: '' })
-  }
+  const mulaiScanNfc = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    setNfcStatus('scanning')
+    setFormNfc({ kartuId: '', diskonId: '' })
+    timerRef.current = setTimeout(() => {
+      setNfcStatus('detected')
+      setFormNfc({ kartuId: 'NFC-' + Date.now().toString(36).slice(-6).toUpperCase(), diskonId: '' })
+    }, 2000)
+  }, [])
+
+  const batalScan = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    setNfcStatus('idle')
+    setFormNfc({ kartuId: '', diskonId: '' })
+  }, [])
 
   const simpanNfc = () => {
     if (!formNfc.kartuId || !formNfc.diskonId) return
@@ -55,27 +78,25 @@ export default function KtpNfcSheet({ open, onClose }) {
       return [{
         id: Date.now().toString(36),
         nama: `Member NFC ${formNfc.kartuId.slice(-4)}`,
-        nik: '',
-        alamat: '',
-        telepon: '',
+        nik: '', alamat: '', telepon: '',
         kartuNfc: formNfc.kartuId,
         diskonPersen: diskon?.tipe === 'persen' ? diskon.nilai : 0,
-        totalBelanja: 0,
-        jumlahTransaksi: 0,
+        totalBelanja: 0, jumlahTransaksi: 0,
         bergabung: new Date().toISOString(),
       }, ...ms]
     })
     setPesan({ ok: true, teks: t('Kartu NFC terdaftar.') })
-    setNfcDibaca(false)
+    setNfcStatus('idle')
     setFormNfc({ kartuId: '', diskonId: '' })
     setTimeout(() => { setPesan(null); onClose() }, 1500)
   }
 
   const reset = () => {
+    if (timerRef.current) clearTimeout(timerRef.current)
     setMode(null)
     setFormKtp({ nik: '', nama: '', alamat: '' })
     setFormNfc({ kartuId: '', diskonId: '' })
-    setNfcDibaca(false)
+    setNfcStatus('idle')
     setPesan(null)
   }
 
@@ -126,12 +147,28 @@ export default function KtpNfcSheet({ open, onClose }) {
       {mode === 'nfc' && (
         <div className="space-y-3">
           <button onClick={reset} className="text-xs text-black/45 hover:text-black/70">← {t('Kembali')}</button>
-          {!nfcDibaca ? (
-            <button onClick={simulasiNfc} className="tombol w-full items-center justify-center gap-2 !py-4 ring-1 ring-black/10 hover:bg-krem-tua">
-              <Ikon nama="bluetooth" className="h-5 w-5 animate-pulse" />
-              {t('Tap Kartu Sekarang')}
+
+          {nfcStatus === 'idle' && (
+            <button onClick={mulaiScanNfc} className="tombol w-full items-center justify-center gap-2 !py-4 ring-1 ring-black/10 hover:bg-krem-tua">
+              <Ikon nama="bluetooth" className="h-5 w-5" />
+              {t('Mulai Scan NFC')}
             </button>
-          ) : (
+          )}
+
+          {nfcStatus === 'scanning' && (
+            <div className="space-y-3">
+              <div className="rounded-2xl bg-emerald-50 p-6 text-center">
+                <div className="mx-auto mb-3 h-16 w-16 animate-pulse rounded-full bg-emerald-200 flex items-center justify-center">
+                  <Ikon nama="bluetooth" className="h-8 w-8 text-emerald-600" />
+                </div>
+                <div className="text-sm font-bold text-emerald-800">{t('Mencari kartu NFC…')}</div>
+                <div className="mt-1 text-[11px] text-emerald-600">{t('Dekatkan kartu ke belakang HP')}</div>
+              </div>
+              <button onClick={batalScan} className="tombol--hantu w-full">{t('Batal')}</button>
+            </div>
+          )}
+
+          {nfcStatus === 'detected' && (
             <>
               <div className="rounded-2xl bg-emerald-50 p-3 text-center">
                 <div className="text-xs font-bold text-emerald-700">{t('Kartu terdeteksi!')}</div>

@@ -4,6 +4,16 @@ Semua perubahan penting aplikasi Kasir Nusantara dicatat di sini.
 Saat rilis, bagian versi teratas otomatis dipakai sebagai catatan rilis di GitHub
 dan ditampilkan sebagai changelog di dalam aplikasi.
 
+## 1.0.23
+
+- Cek pembaruan kini jalan di latar belakang (WorkManager, tiap ~15 menit) + notifikasi otomatis saat ada versi baru
+- Tombol keranjang di kasir kini selalu di atas navbar — tidak lagi ketutup di mode portrait
+- Scan barcode dari form menu: isi kode barcode otomatis tanpa mengetik
+- Upload QRIS diperbaiki (berkas tidak lagi terhapus sebelum dibaca) & kini tanpa PIN
+- Struk PDF: format halaman standar agar tidak blank saat dibuka WPS/office viewer
+- NFC scan: alur baru dengan animasi mencari kartu & deteksi setelah tap
+- Fix error build plugin background task (registrasi native benar)
+
 ## 1.0.22
 
 - Fix bagikan struk: gunakan content:// URI agar share sheet muncul di semua perangkat

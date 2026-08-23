@@ -58,15 +58,8 @@ export default function AturPage() {
     })
   }
 
-  // ===== QRIS terkunci PIN =====
+  // ===== QRIS — tanpa PIN =====
   const mulaiUbahQris = (aksi) => {
-    if (pinTersimpan) {
-      aksiQrisRef.current = aksi
-      setQrisPin('')
-      setQrisSalah(false)
-      setQrisMintaPin(true)
-      return
-    }
     jalankanAksiQris(aksi)
   }
   const jalankanAksiQris = (aksi) => {
@@ -76,17 +69,9 @@ export default function AturPage() {
       setPesanQris({ ok: true, teks: t('QRIS dihapus.') })
     }
   }
-  const konfirmasiPinQris = () => {
-    if (qrisPin !== pinTersimpan) {
-      setQrisSalah(true)
-      return
-    }
-    setQrisMintaPin(false)
-    jalankanAksiQris(aksiQrisRef.current)
-  }
   const unggahQrisBaru = async (e) => {
-    e.target.value = ''
     const berkas = e.target.files?.[0]
+    e.target.value = ''
     if (!berkas) return
     try {
       const dataUrl = await bacaGambarKecil(berkas, 640)

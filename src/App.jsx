@@ -3,6 +3,7 @@ import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import { LocalNotifications } from '@capacitor/local-notifications'
 import { jadwalkanPengingat } from './lib/notif.js'
 import { cekPembaruan, sudahDitunda, besok, bersihkanSisa, kirimNotif, simpanCatatan, VERSI } from './lib/update.js'
+import { mulaiBackgroundTask } from './lib/background.js'
 import { pakaiBahasa, t } from './lib/bahasa.js'
 import PembaruanModal from './components/PembaruanModal.jsx'
 import CatatanRilisModal from './components/CatatanRilisModal.jsx'
@@ -140,6 +141,12 @@ function Halaman() {
       cekPembaruan().then(prosesInfoRilis)
     }, 600000)
     return () => clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Background task: cek update di latar belakang
+  useEffect(() => {
+    mulaiBackgroundTask()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
