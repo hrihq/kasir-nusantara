@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useStore } from '../context/StoreContext.jsx'
 import { t } from '../lib/bahasa.js'
+import { dukungNfc, mulaiScanNfcAsli } from '../lib/nfc.js'
 import Ikon from './Ikon.jsx'
 import { Modal } from './Modal.jsx'
 

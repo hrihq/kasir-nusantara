@@ -1,7 +1,7 @@
 {
   "name": "kasir-nusantara",
   "private": true,
-  "version": "1.0.24",
+  "version": "1.0.25",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -17,6 +17,7 @@
     "@capacitor/local-notifications": "^8.3.1",
     "@capacitor/share": "^8.0.1",
     "@capgo/capacitor-background-task": "^8.1.7",
+    "@capgo/capacitor-nfc": "^8.2.5",
     "chart.js": "^4.4.3",
     "jspdf": "^4.2.1",
     "react": "^18.3.1",

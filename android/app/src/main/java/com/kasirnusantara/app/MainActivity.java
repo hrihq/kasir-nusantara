@@ -10,6 +10,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(InstallerPlugin.class);
         registerPlugin(app.capgo.backgroundtask.BackgroundTaskPlugin.class);
+        registerPlugin(app.capgo.nfc.CapacitorNfcPlugin.class);
         super.onCreate(savedInstanceState);
         if (bridge != null && bridge.getWebView() != null) {
             bridge.getWebView().setOverScrollMode(View.OVER_SCROLL_NEVER);

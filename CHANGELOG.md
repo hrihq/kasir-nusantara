@@ -4,6 +4,11 @@ Semua perubahan penting aplikasi Kasir Nusantara dicatat di sini.
 Saat rilis, bagian versi teratas otomatis dipakai sebagai catatan rilis di GitHub
 dan ditampilkan sebagai changelog di dalam aplikasi.
 
+## 1.0.25
+
+- NFC kartu member kini terbaca sungguhan lewat sensor NFC HP (UID kartu jadi ID member) — perangkat tanpa NFC otomatis memakai simulasi
+- Izin & fitur NFC ditambahkan ke Android
+
 ## 1.0.24
 
 - Stok habis kini diblokir: tidak bisa dipesan, muncul peringatan
