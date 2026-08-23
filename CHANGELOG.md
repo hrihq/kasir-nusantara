@@ -4,6 +4,19 @@ Semua perubahan penting aplikasi Kasir Nusantara dicatat di sini.
 Saat rilis, bagian versi teratas otomatis dipakai sebagai catatan rilis di GitHub
 dan ditampilkan sebagai changelog di dalam aplikasi.
 
+## 1.0.21
+
+- Manajemen diskon: persen/nominal, berlaku untuk semua item, per kategori, atau per produk, minimal pembelian
+- Manajemen member/pelanggan: daftar member, diskon per member, histori belanja
+- Shift kasir: buka/tutup shift, saldo awal/akhir, cek selisih, riwayat shift
+- Stok produk: field stok & minimum, badge warna di kartu kasir, otomatis berkurang saat jual
+- Indikator koneksi online/offline di halaman kasir
+- Struk cetak kini generate PDF + bagikan langsung lewat Android share sheet
+- Ekspor Excel diperbaiki: format tabel, binary write, MIME type benar
+- Scanner barcode diganti: tanpa dependency native (ML Kit), APK turun dari 27 MB ke 5 MB
+- Tombol pindai di menu langsung isi kode barcode (tidak perlu ketik manual)
+- Upload gambar QRIS & logo diperbaiki (FileReader, kompatibel WebView Android)
+
 ## 1.0.20
 
 - Cetak struk langsung ke printer thermal Bluetooth (EPPOS, Codesoft, Xprinter, dll) — sambungkan di Pengaturan, uji cetak, lalu cetak tiap selesai transaksi
