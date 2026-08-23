@@ -10,6 +10,8 @@ import { izinNotifikasi, jadwalkanPengingat } from '../lib/notif.js'
 import PageHeader from '../components/PageHeader.jsx'
 import TransisiTema from '../components/TransisiTema.jsx'
 import PrinterKartu from '../components/PrinterKartu.jsx'
+import ShiftKartu from '../components/ShiftKartu.jsx'
+import MemberDiskonKartu from '../components/MemberDiskonKartu.jsx'
 import Ikon from '../components/Ikon.jsx'
 import PesanPudar from '../components/PesanPudar.jsx'
 import PembaruanModal from '../components/PembaruanModal.jsx'
@@ -776,6 +778,12 @@ export default function AturPage() {
 
       {/* Printer Bluetooth */}
       <PrinterKartu />
+
+      {/* Shift Kasir */}
+      <ShiftKartu />
+
+      {/* Manajemen Member & Diskon */}
+      <MemberDiskonKartu />
 
       {/* Zona data */}
       <div className="kartu mx-5 mt-4 space-y-2.5">

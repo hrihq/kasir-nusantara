@@ -4,6 +4,7 @@ import { Modal } from './Modal.jsx'
 import { Struk } from './Struk.jsx'
 import { t } from '../lib/bahasa.js'
 import { cetakStruk, infoPrinter } from '../lib/printer.js'
+import { cetakStrukPdf } from '../lib/pdf.js'
 
 export function StrukModal({ trx, pengaturan, onClose }) {
   const cetak = async () => {
@@ -15,10 +16,15 @@ export function StrukModal({ trx, pengaturan, onClose }) {
         navigator.vibrate?.(30)
         return
       } catch {
-        // Printer gagal (mati/di luar jangkauan) → jatuh ke cetak layar
+        // Printer gagal → jatuh ke PDF
       }
     }
-    window.print()
+    try {
+      await cetakStrukPdf(trx, pengaturan)
+      navigator.vibrate?.(30)
+    } catch {
+      /* dibatalkan pengguna */
+    }
   }
 
   return (
@@ -29,7 +35,7 @@ export function StrukModal({ trx, pengaturan, onClose }) {
           <div className="mt-4 grid grid-cols-2 gap-2.5">
             <button className="tombol--hantu" onClick={cetak}>
               <Ikon nama="cetak" className="h-[18px] w-[18px]" />
-              {infoPrinter() ? t('Cetak ke Bluetooth') : t('Cetak')}
+              {infoPrinter() ? t('Cetak ke Bluetooth') : t('Bagikan Struk')}
             </button>
             <button className="tombol--utama" onClick={onClose}>
               {t('Selesai')}

@@ -7,7 +7,7 @@ import { Directory, Encoding, Filesystem } from '@capacitor/filesystem'
 
 const NAMA_BERKAS = 'kasir-data-mirror.json'
 const AWALAN = 'kasir_'
-export const KUNCI_INTI = ['kasir_produk', 'kasir_transaksi', 'kasir_nomor_urut']
+export const KUNCI_INTI = ['kasir_produk', 'kasir_transaksi', 'kasir_nomor_urut', 'kasir_member', 'kasir_shift', 'kasir_diskon']
 
 let timerCermin = null
 

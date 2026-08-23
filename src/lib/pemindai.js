@@ -1,29 +1,56 @@
-import { Capacitor } from '@capacitor/core'
-import { BarcodeFormat, BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
+// Pemindai barcode built-in: pakai BarcodeDetector API (Chrome/Android WebView)
+// + getUserMedia untuk akses kamera. Tanpa dependency ML Kit / native plugin.
 
-// Pemindai barcode lewat kamera (ML Kit). Format yang relevan untuk
-// barang dagangan: EAN-13/8, UPC, Code128/39, QR.
+export const dukungPemindai = () =>
+  typeof BarcodeDetector !== 'undefined' && !!navigator.mediaDevices?.getUserMedia
+
 const FORMAT = [
-  BarcodeFormat.Ean13,
-  BarcodeFormat.Ean8,
-  BarcodeFormat.UpcA,
-  BarcodeFormat.UpcE,
-  BarcodeFormat.Code128,
-  BarcodeFormat.Code39,
-  BarcodeFormat.QrCode,
+  'ean_13',
+  'ean_8',
+  'upc_a',
+  'upc_e',
+  'code_128',
+  'code_39',
+  'qr_code',
 ]
 
-export const dukungPemindai = () => Capacitor.isNativePlatform()
+// Minta izin kamera & mulai stream ke elemen video.
+export async function mulaiKamera(videoEl) {
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+  })
+  videoEl.srcObject = stream
+  await videoEl.play()
+  return stream
+}
 
-export async function pindaiBarcode() {
-  if (!dukungPemindai()) throw new Error('Pemindai hanya tersedia di aplikasi Android')
+// Deteksi barcode dari video secara terus-menerus.
+// Mengembalikan { value, format } saat pertama kali terdeteksi, lalu stop.
+export function mulaiDeteksi(videoEl, onHasil) {
+  const detektor = new BarcodeDetector({ formats: FORMAT })
+  let berjalan = true
 
-  const status = await BarcodeScanner.checkPermissions()
-  if (status.camera !== 'granted') {
-    const minta = await BarcodeScanner.requestPermissions()
-    if (minta.camera !== 'granted') throw new Error('Izin kamera ditolak')
+  const loop = async () => {
+    if (!berjalan) return
+    try {
+      const barcodes = await detektor.detect(videoEl)
+      if (barcodes.length > 0 && berjalan) {
+        berjalan = false
+        const b = barcodes[0]
+        onHasil({ value: b.rawValue || b.displayValue || '', format: b.format })
+        return
+      }
+    } catch {
+      // deteksi gagal pada frame ini — coba lagi
+    }
+    if (berjalan) requestAnimationFrame(loop)
   }
+  loop()
 
-  const { barcodes } = await BarcodeScanner.scan({ formats: FORMAT })
-  return barcodes.find((b) => b.rawValue || b.displayValue) ?? null
+  return () => { berjalan = false }
+}
+
+// Stop semua track dari stream
+export function hentikanKamera(stream) {
+  stream?.getTracks().forEach((t) => t.stop())
 }

@@ -9,7 +9,9 @@ import ProdukAvatar from '../components/ProdukAvatar.jsx'
 import { Modal } from '../components/Modal.jsx'
 import { StrukModal } from '../components/StrukModal.jsx'
 import PesanPudar from '../components/PesanPudar.jsx'
-import { dukungPemindai, pindaiBarcode } from '../lib/pemindai.js'
+import KameraSheet from '../components/KameraSheet.jsx'
+import KoneksiIndicator from '../components/KoneksiIndicator.jsx'
+import { dukungPemindai } from '../lib/pemindai.js'
 
 function BarisRingkas({ label, nilai }) {
   return (
@@ -56,29 +58,75 @@ function InputQty({ nilai, ubah }) {
 }
 
 function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, garis, onSuccess }) {
-  const { simpanTransaksi, pengaturan } = useStore()
+  const { simpanTransaksi, pengaturan, members, diskonList, shiftAktif } = useStore()
   const [metode, setMetode] = useState('Tunai')
   const [bayar, setBayar] = useState('')
+  const [memberId, setMemberId] = useState('')
+  const [diskonId, setDiskonId] = useState('')
 
-  const totalAkhir = metode === 'Tunai' ? Math.ceil(total / 500) * 500 : total
+  // Hitung diskon
+  const diskonTerpilih = diskonList.find((d) => d.id === diskonId && d.aktif)
+  const memberTerpilih = members.find((m) => m.id === memberId)
+
+  let diskonNominal = 0
+  if (diskonTerpilih) {
+    const berlaku = diskonTerpilih.berlakuUntuk === 'semua' ||
+      garis.some((g) =>
+        diskonTerpilih.berlakuUntuk === 'kategori'
+          ? g.kategori === diskonTerpilih.targetId
+          : g.id === diskonTerpilih.targetId,
+      )
+    const melewatiMin = !diskonTerpilih.minPembelian || subtotal >= diskonTerpilih.minPembelian
+    if (berlaku && melewatiMin) {
+      diskonNominal = diskonTerpilih.tipe === 'persen'
+        ? Math.round((subtotal * diskonTerpilih.nilai) / 100)
+        : diskonTerpilih.nilai
+    }
+  }
+  // Diskon member (tambahan)
+  if (memberTerpilih?.diskonPersen > 0 && !diskonTerpilih) {
+    diskonNominal = Math.round((subtotal * memberTerpilih.diskonPersen) / 100)
+  }
+
+  const subtotalSetelahDiskon = Math.max(0, subtotal - diskonNominal)
+  const ppnAkhir = Math.round((subtotalSetelahDiskon * ppnPersen) / 100)
+  const totalAkhirAsli = subtotalSetelahDiskon + ppnAkhir
+  const totalAkhir = metode === 'Tunai' ? Math.ceil(totalAkhirAsli / 500) * 500 : totalAkhirAsli
   const nominal = Number(bayar) || 0
   const kembalian = metode === 'Tunai' ? nominal - totalAkhir : 0
   const cukup = metode !== 'Tunai' || nominal >= totalAkhir
   const tampilBayar = bayar === '' ? '' : new Intl.NumberFormat('id-ID').format(Number(bayar))
 
+  if (!shiftAktif) {
+    return (
+      <Modal open={open} onClose={onClose} judul={t('Pembayaran')}>
+        <div className="py-8 text-center">
+          <Ikon nama="kunci" className="mx-auto h-10 w-10 text-black/25" />
+          <p className="mt-3 text-sm font-semibold text-black/55">{t('Buka shift dulu sebelum berjualan.')}</p>
+          <button onClick={onClose} className="tombol--utama mt-4">{t('Tutup')}</button>
+        </div>
+      </Modal>
+    )
+  }
+
   const selesai = () => {
     const trx = simpanTransaksi({
-      item: garis.map((g) => ({ id: g.id, nama: g.nama, harga: g.harga, qty: g.qty })),
+      item: garis.map((g) => ({ id: g.id, nama: g.nama, harga: g.harga, qty: g.qty, kategori: g.kategori })),
       subtotal,
       ppnPersen,
-      ppnNominal,
+      ppnNominal: ppnAkhir,
       total: totalAkhir,
       metode,
       bayar: metode === 'Tunai' ? nominal : totalAkhir,
       kembalian: metode === 'Tunai' ? kembalian : 0,
+      memberId: memberId || null,
+      diskonId: diskonId || null,
+      diskonNominal,
     })
     setMetode('Tunai')
     setBayar('')
+    setMemberId('')
+    setDiskonId('')
     bunyiSukses()
     onSuccess(trx)
   }
@@ -87,16 +135,45 @@ function ModalBayar({ open, onClose, subtotal, ppnPersen, ppnNominal, total, gar
     <Modal open={open} onClose={onClose} judul={t('Pembayaran')}>
       <div className="space-y-1.5 rounded-2xl bg-white p-4 text-sm shadow-kartu">
         <BarisRingkas label={t('Subtotal')} nilai={rupiah(subtotal)} />
-        {ppnPersen > 0 && <BarisRingkas label={`${t('PPN')} ${ppnPersen}%`} nilai={rupiah(ppnNominal)} />}
+        {diskonNominal > 0 && (
+          <BarisRingkas label={t('Diskon')} nilai={`-${rupiah(diskonNominal)}`} />
+        )}
+        {ppnPersen > 0 && <BarisRingkas label={`${t('PPN')} ${ppnPersen}%`} nilai={rupiah(ppnAkhir)} />}
         <div className="flex justify-between pt-1 text-base font-bold">
           <span>{t('Total Tagihan')}</span>
-          <span className="text-merek">{rupiah(total)}</span>
+          <span className="text-merek">{rupiah(totalAkhir)}</span>
         </div>
-        {metode === 'Tunai' && totalAkhir !== total && (
+        {metode === 'Tunai' && totalAkhir !== totalAkhirAsli && (
           <p className="mt-1 text-right text-xs font-semibold text-merek">
             {t('Tunai dibulatkan jadi %s').replace('%s', rupiah(totalAkhir))}
           </p>
         )}
+      </div>
+
+      {/* Pilih Member */}
+      <div className="mt-3">
+        <span className="label">{t('Member (opsional)')}</span>
+        <select className="input" value={memberId} onChange={(e) => setMemberId(e.target.value)}>
+          <option value="">{t('Tanpa member')}</option>
+          {members.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.nama}{m.diskonPersen > 0 ? ` (${m.diskonPersen}% off)` : ''}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Pilih Diskon */}
+      <div className="mt-2">
+        <span className="label">{t('Diskon Tambahan')}</span>
+        <select className="input" value={diskonId} onChange={(e) => setDiskonId(e.target.value)}>
+          <option value="">{t('Tanpa diskon')}</option>
+          {diskonList.filter((d) => d.aktif).map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.nama} — {d.tipe === 'persen' ? `${d.nilai}%` : rupiah(d.nilai)}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="mt-4">
@@ -197,34 +274,25 @@ export default function KasirPage() {
   const [bayarBuka, setBayarBuka] = useState(false)
   const [trxTerakhir, setTrxTerakhir] = useState(null)
   const [pesanPindai, setPesanPindai] = useState(null)
-  const [pindaiJalan, setPindaiJalan] = useState(false)
+  const [kameraBuka, setKameraBuka] = useState(false)
 
-  const mulaiPindai = async () => {
-    if (pindaiJalan) return
-    setPindaiJalan(true)
-    setPesanPindai(null)
-    try {
-      const hasil = await pindaiBarcode()
-      const kode = (hasil?.rawValue || hasil?.displayValue || '').trim()
-      if (!kode) return
-      const p = produk.find((x) => x.kode && x.kode === kode)
-      if (p) {
-        tambah(p.id)
-        navigator.vibrate?.(30)
-        setQ('')
-        setKat('Semua')
-      } else {
-        // Tidak cocok → tampilkan kode di pencarian agar terlihat
-        setQ(kode)
-        setPesanPindai({
-          ok: false,
-          teks: `${t('Tidak ada menu dengan barcode:')} ${kode}`,
-        })
-      }
-    } catch {
-      /* dibatalkan pengguna / izin ditolak */
+  const onHasilPindai = (hasil) => {
+    setKameraBuka(false)
+    const kode = (hasil?.value || '').trim()
+    if (!kode) return
+    const p = produk.find((x) => x.kode && x.kode === kode)
+    if (p) {
+      tambah(p.id)
+      navigator.vibrate?.(30)
+      setQ('')
+      setKat('Semua')
+    } else {
+      setQ(kode)
+      setPesanPindai({
+        ok: false,
+        teks: `${t('Tidak ada menu dengan barcode:')} ${kode}`,
+      })
     }
-    setPindaiJalan(false)
   }
 
   const kategori = useMemo(() => ['Semua', ...new Set(produk.map((p) => p.kategori))], [produk])
@@ -310,6 +378,9 @@ export default function KasirPage() {
             </button>
           </div>
           <div className="relative mt-4">
+            <KoneksiIndicator />
+          </div>
+          <div className="relative mt-2">
             <Ikon
               nama="cari"
               className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-black/35"
@@ -322,8 +393,7 @@ export default function KasirPage() {
             />
             {dukungPemindai() && (
               <button
-                onClick={mulaiPindai}
-                disabled={pindaiJalan}
+                onClick={() => setKameraBuka(true)}
                 aria-label={t('Pindai Barcode')}
                 className="absolute right-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl bg-merek text-white transition active:scale-90"
               >
@@ -365,9 +435,16 @@ export default function KasirPage() {
           <button
             key={p.id}
             onClick={() => tambah(p.id)}
-            className="group overflow-hidden rounded-2xl bg-white text-left shadow-kartu transition duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-[.97]"
+            className="group relative overflow-hidden rounded-2xl bg-white text-left shadow-kartu transition duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-[.97]"
           >
             <ProdukAvatar produk={p} className={`block aspect-square w-full ${rapat ? 'text-xl' : 'text-3xl'}`} />
+              {p.stok >= 0 && (
+                <span className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold shadow ${
+                  p.stok === 0 ? 'bg-red-500 text-white' : p.stok <= (p.stokMinimum || 0) ? 'bg-amber-400 text-white' : 'bg-emerald-500 text-white'
+                }`}>
+                  {p.stok === 0 ? t('Habis') : p.stok}
+                </span>
+              )}
             <div className={`border-t border-black/5 ${rapat ? 'p-1.5' : 'p-3'} layar:p-2`}>
               <div
                 className={
@@ -523,6 +600,7 @@ export default function KasirPage() {
       />
 
       <StrukModal trx={trxTerakhir} pengaturan={pengaturan} onClose={() => setTrxTerakhir(null)} />
+      <KameraSheet buka={kameraBuka} tutup={() => setKameraBuka(false)} onHasil={onHasilPindai} />
     </div>
   )
 }

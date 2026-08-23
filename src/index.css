@@ -421,6 +421,21 @@
   animation: laju-emoji 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
+/* ====== SCAN LINE (pemindai barcode) ====== */
+@keyframes scan-geser {
+  0%, 100% { top: 0; }
+  50% { top: calc(100% - 2px); }
+}
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--merek, #b23b22);
+  box-shadow: 0 0 8px var(--merek, #b23b22), 0 0 20px var(--merek, #b23b22);
+  animation: scan-geser 2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .anim-dari-kanan,
   .anim-dari-kiri,

@@ -1,5 +1,11 @@
 export const produkAwal = []
 
+export const memberAwal = []
+
+export const diskonAwal = []
+
+export const shiftAwal = []
+
 export const pengaturanAwal = {
   namaToko: 'Warung Nusantara',
   alamat: 'Jl. Merdeka No. 123, Jakarta',
@@ -11,4 +17,5 @@ export const pengaturanAwal = {
   ppnPersen: 11,
   kolomMenu: 2,
   modeLite: false,
+  namaKasir: '',
 }
